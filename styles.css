@@ -609,6 +609,17 @@ button {
   font-size: 24px;
 }
 
+.parent-note {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #e8f8e7;
+  color: #2f7f45;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 900;
+}
+
 .setting-row {
   display: flex;
   align-items: center;
@@ -624,23 +635,14 @@ button {
 }
 
 .toggle {
-  width: 62px;
+  min-width: 70px;
   height: 34px;
+  padding: 0 12px;
   border-radius: 999px;
   background: var(--mint);
-  position: relative;
-}
-
-.toggle::after {
-  content: "";
-  position: absolute;
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  background: #ffffff;
-  right: 4px;
-  top: 4px;
-  box-shadow: 0 3px 8px rgba(35, 50, 77, 0.18);
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 900;
 }
 
 .footer-note {

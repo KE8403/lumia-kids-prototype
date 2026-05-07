@@ -299,26 +299,26 @@ function renderParentGate() {
 function renderParentArea() {
   return `
     <section class="screen">
-      ${topbar("Parent Area", "home")}
+      ${topbar("Grown-ups", "home")}
       <div class="parent-panel">
+        <p class="parent-note">Offline only. No ads. No child data.</p>
         <div class="setting-row">
-          <span>Sound</span>
-          <button class="toggle" data-toggle="sound" aria-label="Toggle sound"></button>
+          <span>Sound effects</span>
+          <button class="toggle" data-toggle="sound" aria-label="Toggle sound">${state.sound ? "On" : "Off"}</button>
         </div>
         <div class="setting-row">
-          <span>Music</span>
-          <button class="toggle" data-toggle="music" aria-label="Toggle music"></button>
+          <span>Gentle music</span>
+          <button class="toggle" data-toggle="music" aria-label="Toggle music">${state.music ? "On" : "Off"}</button>
         </div>
         <div class="setting-row">
-          <span>Reset stars</span>
+          <span>Reset progress</span>
           <button class="pill-btn" data-reset="true">Reset</button>
         </div>
         <div class="setting-row">
           <span>Privacy</span>
-          <strong>Offline only</strong>
+          <strong>Local only</strong>
         </div>
       </div>
-      <p class="footer-note">No ads. No accounts. No child personal data.</p>
     </section>
   `;
 }
