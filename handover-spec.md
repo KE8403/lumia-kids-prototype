@@ -137,6 +137,7 @@ After the prototype is approved, the next step is to build the Flutter MVP.
 - Completion should include a toddler-friendly celebration lasting a few seconds so parents and kids have time to clap and enjoy the achievement.
 - Celebration direction: warmer voice such as `Hooray! Great job`, fuller slower confetti, and a harmonious genuine applause sound, like a small award-giving moment.
 - Production audio should use separate bundled voice assets for letter names, softer lowercase delivery, and celebration phrases rather than relying on one device TTS voice.
+- Background music can be included, but it must be very light, gentle, looped, and easy for parents to turn off.
 - The app should automatically advance to the next task:
   - Letter flow: A, a, B, b, C, c.
   - Number flow: 1, 2, 3 through 20.

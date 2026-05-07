@@ -75,6 +75,7 @@ Tracing behavior:
 - Completion should last a few seconds so parents and kids have time to clap and enjoy the achievement.
 - Celebration direction: warmer voice such as `Hooray! Great job`, fuller slower confetti, and a harmonious genuine applause sound, like a small award-giving moment.
 - Production audio should use separate bundled voice assets for letter names, softer lowercase delivery, and celebration phrases rather than relying on one device TTS voice.
+- Background music can be included, but it must be very light, gentle, looped, and easy for parents to turn off.
 - The prototype then auto-advances:
   - Letter flow: `A -> a -> B -> b`.
   - Number flow: `1 -> 2 -> 3`, up to 20, then loops.

@@ -31,12 +31,18 @@ const letterSpeechNames = {
   Z: "zee"
 };
 const playGroups = [
-  ["A", "B", "C", "D"],
-  ["E", "F", "G", "H"],
-  ["I", "J", "K", "L"],
-  ["M", "N", "O", "P"],
-  ["Q", "R", "S", "T"],
-  ["U", "V", "W", "X"],
+  ["A", "B"],
+  ["C", "D"],
+  ["E", "F"],
+  ["G", "H"],
+  ["I", "J"],
+  ["K", "L"],
+  ["M", "N"],
+  ["O", "P"],
+  ["Q", "R"],
+  ["S", "T"],
+  ["U", "V"],
+  ["W", "X"],
   ["Y", "Z"]
 ];
 
@@ -50,6 +56,7 @@ const state = {
   selectedLower: null,
   matched: new Set(),
   playGroup: 0,
+  lastMatchWrong: false,
   sound: true,
   music: true,
   traceCompleted: false
@@ -134,22 +141,21 @@ function renderHome() {
       <div class="menu-grid">
         <button class="menu-btn abc" data-nav="abc">
           <strong>ABC</strong>
-          <small>Letters</small>
+          <small>Trace Letters</small>
         </button>
         <button class="menu-btn numbers" data-nav="numbers">
           <strong>123</strong>
-          <small>Numbers</small>
+          <small>Trace Numbers</small>
         </button>
         <button class="menu-btn play" data-nav="play">
           <strong>Play</strong>
-          <small>Match</small>
+          <small>Match Game</small>
         </button>
         <button class="menu-btn parent" data-nav="parentGate">
-          <strong>P</strong>
-          <small>Parent</small>
+          <strong>Grown-ups</strong>
+          <small>Settings</small>
         </button>
       </div>
-      <p class="footer-note">Prototype only. Final app will be Flutter, offline, paid, and child-safe.</p>
     </section>
   `;
 }
@@ -178,7 +184,10 @@ function renderLetter() {
           <span>${letter}</span>
           <span>${letter.toLowerCase()}</span>
         </div>
-        <button class="primary-btn" data-speak="${letter}" data-speak-volume="${state.traceMode === "upper" ? "1" : "0.55"}">Hear ${activeChar}</button>
+        <button class="primary-btn hear-btn" data-speak="${letter}" data-speak-volume="${state.traceMode === "upper" ? "1" : "0.55"}" aria-label="Hear ${activeChar}">
+          <span class="speaker-icon" aria-hidden="true">&#128266;</span>
+          <span>Hear ${activeChar}</span>
+        </button>
       </div>
       <div class="mode-row">
         <button class="pill-btn ${state.traceMode === "upper" ? "active" : ""}" data-mode="upper">${letter}</button>
@@ -208,7 +217,10 @@ function renderNumber() {
       ${topbar("Trace Number", "numbers")}
       <div class="detail-hero">
         <div class="display-number">${state.number}</div>
-        <button class="primary-btn" data-speak="${state.number}">Hear ${state.number}</button>
+        <button class="primary-btn hear-btn" data-speak="${state.number}" aria-label="Hear ${state.number}">
+          <span class="speaker-icon" aria-hidden="true">&#128266;</span>
+          <span>Hear ${state.number}</span>
+        </button>
       </div>
       ${tracePanel(String(state.number))}
     </section>
@@ -218,11 +230,14 @@ function renderNumber() {
 function tracePanel(character) {
   return `
     <div class="trace-panel">
-      <p class="helper-text">Trace, draw, or try the shape. Tap Done when finished.</p>
-      <canvas id="traceCanvas" width="360" height="220" data-guide="${character}"></canvas>
+      <p class="helper-text">Trace it. Tap Done.</p>
+      <div class="trace-canvas-wrap">
+        <canvas id="traceCanvas" width="360" height="220" data-guide="${character}"></canvas>
+        <div class="trace-sparkles" aria-hidden="true"></div>
+      </div>
       <div class="trace-actions">
-        <button class="pill-btn" data-clear-trace="true">Clear</button>
-        <button class="pill-btn active" data-complete-trace="true">Done</button>
+        <button class="pill-btn clear-btn" data-clear-trace="true">Clear</button>
+        <button class="pill-btn active done-btn" data-complete-trace="true">Done!</button>
       </div>
       <div class="reward-strip">${state.reward}</div>
     </div>
@@ -238,7 +253,7 @@ function renderPlay() {
     <section class="screen">
       ${topbar("Match")}
       ${mascotStars(50)}
-      <p class="helper-text">Match uppercase letters with lowercase letters.</p>
+      <p class="helper-text">Tap a big letter. Tap its small letter.</p>
       <div class="match-board">
         <div class="match-column">
           ${playLetters.map(letter => matchButton(letter, "upper")).join("")}
@@ -247,7 +262,7 @@ function renderPlay() {
           ${lowerLetters.map(letter => matchButton(letter, "lower")).join("")}
         </div>
       </div>
-      <div class="reward-strip">${state.reward}</div>
+      <div class="reward-strip ${state.lastMatchWrong ? "wrong" : ""}">${state.reward}</div>
     </section>
   `;
 }
@@ -411,6 +426,7 @@ function bindScreen() {
 
 function navigate(screen) {
   state.screen = screen;
+  state.lastMatchWrong = false;
   render();
 }
 
@@ -422,8 +438,10 @@ function checkMatch() {
 
   if (state.selectedUpper === state.selectedLower) {
     state.matched.add(state.selectedUpper);
+    state.lastMatchWrong = false;
   } else {
-    state.reward = "Try again.";
+    state.reward = "Oops, try again.";
+    state.lastMatchWrong = true;
     playTryAgainSound();
   }
 
@@ -435,7 +453,7 @@ function checkMatch() {
   if (groupComplete) {
     state.reward = "Great job! Next match set coming up.";
     playSuccessSound("Great job");
-  } else if (state.reward !== "Try again.") {
+  } else if (!state.lastMatchWrong) {
     state.reward = "Great match! You earned a star.";
     playSuccessSound("Great match");
   }
@@ -447,6 +465,7 @@ function checkMatch() {
       state.playGroup = (state.playGroup + 1) % playGroups.length;
       state.matched.clear();
       state.reward = "";
+      state.lastMatchWrong = false;
       if (state.screen === "play") render();
     }, 1200);
   }
@@ -638,16 +657,35 @@ function chooseCheerfulVoice() {
   ) || englishVoices[0] || voices[0];
 }
 
+function showTraceSparkle(container, x, y) {
+  if (!container) return;
+  const sparkle = document.createElement("span");
+  sparkle.className = "trace-sparkle";
+  sparkle.textContent = Math.random() > 0.45 ? "✦" : "★";
+  sparkle.style.left = `${x}px`;
+  sparkle.style.top = `${y}px`;
+  sparkle.style.setProperty("--spin", `${-30 + Math.random() * 60}deg`);
+  sparkle.style.setProperty("--drift-x", `${-10 + Math.random() * 20}px`);
+  sparkle.style.setProperty("--drift-y", `${-22 + Math.random() * 12}px`);
+  container.appendChild(sparkle);
+
+  const remove = () => sparkle.remove();
+  sparkle.addEventListener("animationend", remove, { once: true });
+  setTimeout(remove, 800);
+}
+
 function setupCanvas() {
   const canvas = document.querySelector("#traceCanvas");
   if (!canvas) return;
 
   const context = canvas.getContext("2d");
   const guide = canvas.dataset.guide;
+  const sparkleContainer = document.querySelector(".trace-sparkles");
   let drawing = false;
   let distance = 0;
   let lastPoint = null;
   let traceStartedAt = 0;
+  let lastSparkleAt = 0;
   const touchedGuideCells = new Set();
   const mask = createGuideMask(canvas, guide);
   const totalGuideCells = countGuideCells(mask);
@@ -656,6 +694,15 @@ function setupCanvas() {
   const minimumTraceTime = 1800;
 
   drawGuide(context, canvas, guide);
+
+  const sparklePoint = event => {
+    const rect = canvas.getBoundingClientRect();
+    const client = event.touches ? event.touches[0] : event;
+    return {
+      x: client.clientX - rect.left,
+      y: client.clientY - rect.top
+    };
+  };
 
   const point = event => {
     const rect = canvas.getBoundingClientRect();
@@ -692,6 +739,17 @@ function setupCanvas() {
     context.lineCap = "round";
     context.lineJoin = "round";
     context.stroke();
+
+    const now = Date.now();
+    if (
+      now - lastSparkleAt >= 120 &&
+      !state.traceCompleted &&
+      isNearGuide(p, mask, 18)
+    ) {
+      lastSparkleAt = now;
+      const sp = sparklePoint(event);
+      showTraceSparkle(sparkleContainer, sp.x, sp.y);
+    }
 
     const coverage = touchedGuideCells.size / Math.max(totalGuideCells, 1);
     const hasTracedLongEnough = Date.now() - traceStartedAt >= minimumTraceTime;
