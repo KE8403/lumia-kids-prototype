@@ -474,7 +474,7 @@ function checkMatch() {
 function completeTraceTask() {
   if (state.traceCompleted) return;
   state.traceCompleted = true;
-  state.reward = "Great job! Next one coming up.";
+  state.reward = `Great job! Next: ${nextTraceLabel()}`;
   updateRewardStrip();
   playSuccessSound("Hooray! Great job");
   showCelebration();
@@ -486,6 +486,23 @@ function completeTraceTask() {
       advanceNumberTask();
     }
   }, 3600);
+}
+
+function nextTraceLabel() {
+  if (state.screen === "letter") return nextLetterTaskLabel();
+  if (state.screen === "number") return nextNumberTaskLabel();
+  return "next";
+}
+
+function nextLetterTaskLabel() {
+  const currentIndex = letters.indexOf(state.letter);
+  if (state.traceMode === "upper") return state.letter.toLowerCase();
+  return letters[(currentIndex + 1) % letters.length];
+}
+
+function nextNumberTaskLabel() {
+  const currentIndex = numbers.indexOf(state.number);
+  return numbers[(currentIndex + 1) % numbers.length];
 }
 
 function advanceLetterTask() {
