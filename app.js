@@ -106,9 +106,9 @@ function render() {
 function topbar(title, backTarget = "home") {
   return `
     <div class="topbar">
-      <button class="back-btn" data-nav="${backTarget}" aria-label="Back">&lt;</button>
+      <button class="back-btn" data-nav="${backTarget}" aria-label="Back">Back</button>
       <h1 class="screen-title">${title}</h1>
-      <button class="icon-btn" data-nav="home" aria-label="Home">H</button>
+      <button class="icon-btn" data-nav="home" aria-label="Home">Home</button>
     </div>
   `;
 }
