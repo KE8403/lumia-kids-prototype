@@ -124,24 +124,17 @@ button {
   text-align: center;
 }
 
-.brand-subtitle {
-  margin: 0;
-  padding: 10px 16px;
-  border-radius: 999px;
-  background: #ffffff;
-  box-shadow: var(--soft-shadow);
-  color: var(--muted);
-  font-weight: 800;
-}
-
 .stars-row {
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
-  gap: 12px;
+  position: relative;
+  width: calc(var(--mascot-size, 74px) * 2.55);
+  height: calc(var(--mascot-size, 74px) * 1.55);
+  margin-inline: auto;
 }
 
 .star {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
   width: var(--size, 74px);
   height: var(--size, 74px);
   overflow: visible;
@@ -153,15 +146,39 @@ button {
 }
 
 .star-1 {
-  transform: rotate(-8deg) translateY(4px);
+  z-index: 1;
+  transform: translateX(-50%) translateY(-18%) rotate(2deg);
 }
 
 .star-2 {
-  transform: translateY(-4px);
+  z-index: 2;
+  transform: translateX(-128%) translateY(2%) rotate(-12deg);
 }
 
 .star-3 {
-  transform: rotate(8deg) translateY(3px);
+  z-index: 3;
+  transform: translateX(-50%) translateY(12%) rotate(3deg);
+}
+
+.star-4 {
+  z-index: 2;
+  transform: translateX(28%) translateY(3%) rotate(13deg);
+}
+
+.logo-card .star-1 {
+  animation: bigSisterStar 3.6s ease-in-out infinite;
+}
+
+.logo-card .star-2 {
+  animation: littleStarLeft 3.6s ease-in-out infinite;
+}
+
+.logo-card .star-3 {
+  animation: littleStarMiddle 3.6s ease-in-out infinite;
+}
+
+.logo-card .star-4 {
+  animation: littleStarRight 3.6s ease-in-out infinite;
 }
 
 .star-body {
@@ -169,6 +186,12 @@ button {
   stroke: rgba(255, 255, 255, 0.82);
   stroke-width: 5;
   stroke-linejoin: round;
+}
+
+.logo-card .star-body {
+  animation: starBreath 2.8s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
 }
 
 .star-highlight {
@@ -198,10 +221,246 @@ button {
   box-shadow: var(--soft-shadow);
 }
 
+.learning-badge {
+  width: min(100%, 318px);
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: 999px;
+  background: #ffffff;
+  box-shadow: var(--soft-shadow);
+  color: var(--ink);
+  font-weight: 900;
+}
+
+.abc-blocks {
+  display: inline-flex;
+  gap: 3px;
+}
+
+.abc-blocks span {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  color: #ffffff;
+  font-size: 18px;
+  line-height: 1;
+  box-shadow: inset 0 -3px 0 rgba(35, 50, 77, 0.12);
+}
+
+.abc-blocks span:nth-child(1) {
+  background: var(--blue);
+}
+
+.abc-blocks span:nth-child(2) {
+  background: #ff75a9;
+}
+
+.abc-blocks span:nth-child(3) {
+  background: var(--mint);
+}
+
+.badge-title {
+  min-height: 34px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(90deg, #fff3c7 0%, #ffe9ef 48%, #e8f4ff 100%);
+  color: var(--ink);
+  font-size: 19px;
+  line-height: 1;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+.badge-title span {
+  color: #9b4564;
+  padding-inline: 3px;
+}
+
+.learning-preview {
+  position: relative;
+  width: min(100%, 330px);
+  min-height: 172px;
+  display: grid;
+  align-content: center;
+  gap: 14px;
+  margin-top: -4px;
+  padding: 18px 16px;
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 18% 22%, rgba(255, 216, 90, 0.34), transparent 22%),
+    radial-gradient(circle at 82% 74%, rgba(79, 143, 247, 0.22), transparent 24%),
+    rgba(255, 255, 255, 0.84);
+  box-shadow: var(--soft-shadow);
+  overflow: hidden;
+}
+
+.preview-row {
+  display: grid;
+  grid-template-columns: 0.9fr 52px 1fr;
+  align-items: center;
+  gap: 10px;
+}
+
+.preview-token {
+  min-height: 78px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  background: #ffffff;
+  font-size: 30px;
+  line-height: 1;
+  font-weight: 900;
+  box-shadow: 0 8px 18px rgba(42, 56, 91, 0.1);
+}
+
+.letter-token {
+  color: #27416f;
+}
+
+.number-token {
+  color: #2f7f45;
+}
+
+.preview-trace {
+  display: grid;
+  justify-items: center;
+  gap: 7px;
+}
+
+.preview-trace span {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #ffd85a;
+  box-shadow: 0 4px 8px rgba(42, 56, 91, 0.12);
+}
+
+.preview-trace span:nth-child(2),
+.preview-trace span:nth-child(4) {
+  background: #ff75a9;
+}
+
+.preview-trace span:nth-child(3),
+.preview-trace span:nth-child(5) {
+  background: #4f8ff7;
+}
+
+.preview-caption {
+  width: 100%;
+  min-height: 34px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: #fff8dc;
+  color: #27416f;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.preview-spark {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  opacity: 0.78;
+}
+
+.preview-spark.one {
+  left: 18px;
+  top: 18px;
+  background: #ff75a9;
+}
+
+.preview-spark.two {
+  right: 22px;
+  top: 28px;
+  background: #ffd85a;
+}
+
+@keyframes bigSisterStar {
+  0%,
+  100% {
+    transform: translateX(-50%) translateY(-18%) rotate(2deg) scale(1);
+  }
+  42% {
+    transform: translateX(-50%) translateY(-22%) rotate(1deg) scale(1.025);
+  }
+  68% {
+    transform: translateX(-50%) translateY(-19%) rotate(3deg) scale(1.01);
+  }
+}
+
+@keyframes littleStarLeft {
+  0%,
+  100% {
+    transform: translateX(-128%) translateY(2%) rotate(-12deg);
+  }
+  36% {
+    transform: translateX(-152%) translateY(-10%) rotate(-22deg);
+  }
+  70% {
+    transform: translateX(-105%) translateY(10%) rotate(-5deg);
+  }
+}
+
+@keyframes littleStarMiddle {
+  0%,
+  100% {
+    transform: translateX(-50%) translateY(12%) rotate(3deg);
+  }
+  34% {
+    transform: translateX(-50%) translateY(-4%) rotate(-4deg);
+  }
+  72% {
+    transform: translateX(-50%) translateY(15%) rotate(5deg);
+  }
+}
+
+@keyframes littleStarRight {
+  0%,
+  100% {
+    transform: translateX(28%) translateY(3%) rotate(13deg);
+  }
+  38% {
+    transform: translateX(52%) translateY(-9%) rotate(23deg);
+  }
+  72% {
+    transform: translateX(8%) translateY(11%) rotate(7deg);
+  }
+}
+
+@keyframes starBreath {
+  0%,
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+  45% {
+    transform: scale(1.035) rotate(-1.5deg);
+  }
+  62% {
+    transform: scale(1.01) rotate(1deg);
+  }
+}
+
 .splash-actions {
   margin-top: auto;
   display: grid;
-  gap: 12px;
+  gap: 8px;
+}
+
+.splash-note {
+  margin: 0;
+  color: var(--muted);
+  text-align: center;
+  font-size: 12px;
+  font-weight: 900;
 }
 
 .primary-btn,

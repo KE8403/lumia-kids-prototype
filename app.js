@@ -64,13 +64,14 @@ const state = {
 
 function mascotStars(size = 74) {
   const stars = [
-    ["#4f8ff7", size - 8],
-    ["#ff75a9", size],
-    ["#ffd85a", size - 3]
+    ["#ffd85a", size * 1.18],
+    ["#4f8ff7", size * 0.58],
+    ["#ff75a9", size * 0.62],
+    ["#79ddb2", size * 0.56]
   ];
 
   return `
-    <div class="stars-row" aria-label="Three LumiA Kids star mascots">
+    <div class="stars-row" style="--mascot-size:${size}px" aria-label="One big LumiA Kids star mascot with three little star friends">
       ${stars.map(([color, starSize], index) => `
         <svg class="star bubbly-star star-${index + 1}" style="--star-color:${color};--size:${starSize}px" viewBox="0 0 100 100" role="img" aria-label="Smiling star mascot">
           <path class="star-body" d="M50 7 C56 7 60 26 65 30 C70 34 90 28 94 34 C98 40 82 52 80 59 C78 66 90 82 85 88 C80 94 62 83 55 84 C48 85 35 99 28 95 C21 91 27 72 24 66 C21 60 3 52 5 44 C7 36 27 36 33 31 C39 26 44 7 50 7 Z"></path>
@@ -113,6 +114,34 @@ function topbar(title, backTarget = "home") {
   `;
 }
 
+function learningBadge() {
+  return `
+    <div class="learning-badge" aria-label="ABC Trace and Count">
+      <span class="abc-blocks">
+        <span>A</span><span>B</span><span>C</span>
+      </span>
+      <span class="badge-title">Trace <span>&amp;</span> Count</span>
+    </div>
+  `;
+}
+
+function learningPreview() {
+  return `
+    <div class="learning-preview" aria-hidden="true">
+      <div class="preview-spark star-dot one"></div>
+      <div class="preview-spark star-dot two"></div>
+      <div class="preview-row">
+        <div class="preview-token letter-token">A a</div>
+        <div class="preview-trace">
+          <span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <div class="preview-token number-token">1 2 3</div>
+      </div>
+      <div class="preview-caption">learn • trace • count</div>
+    </div>
+  `;
+}
+
 function renderSplash() {
   return `
     <section class="screen">
@@ -121,10 +150,12 @@ function renderSplash() {
           ${mascotStars(82)}
           <h1 class="brand-title">LumiA<br>Kids</h1>
         </div>
-        <p class="brand-subtitle">ABC Trace & Count</p>
+        ${learningBadge()}
+        ${learningPreview()}
       </div>
       <div class="splash-actions">
-        <button class="primary-btn" data-nav="home">Start Learning</button>
+        <button class="primary-btn" data-nav="home">Let's Learn!</button>
+        <p class="splash-note">Offline • No ads • No login</p>
       </div>
     </section>
   `;
@@ -136,7 +167,7 @@ function renderHome() {
       <div class="brand-lockup">
         ${mascotStars(58)}
         <h1 class="screen-title">LumiA Kids</h1>
-        <p class="brand-subtitle">ABC Trace & Count</p>
+        ${learningBadge()}
       </div>
       <div class="menu-grid">
         <button class="menu-btn abc" data-nav="abc">
