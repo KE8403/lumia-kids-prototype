@@ -59,7 +59,8 @@ const state = {
   lastMatchWrong: false,
   sound: true,
   music: true,
-  traceCompleted: false
+  traceCompleted: false,
+  traceCoverage: 0
 };
 
 function mascotStars(size = 74) {
@@ -279,6 +280,7 @@ function tracePanel(character) {
   return `
     <div class="trace-panel">
       <p class="helper-text">Trace it. Tap Done.</p>
+      <div class="trace-prompt">Follow the dots</div>
       <div class="trace-canvas-wrap">
         <canvas id="traceCanvas" width="360" height="220" data-guide="${character}"></canvas>
         <div class="trace-sparkles" aria-hidden="true"></div>
@@ -382,6 +384,7 @@ function bindScreen() {
       state.traceMode = "upper";
       state.reward = "";
       state.traceCompleted = false;
+      state.traceCoverage = 0;
       navigate("letter");
     });
   });
@@ -391,6 +394,7 @@ function bindScreen() {
       state.number = Number(button.dataset.number);
       state.reward = "";
       state.traceCompleted = false;
+      state.traceCoverage = 0;
       navigate("number");
     });
   });
@@ -400,6 +404,7 @@ function bindScreen() {
       state.traceMode = button.dataset.mode;
       state.reward = "";
       state.traceCompleted = false;
+      state.traceCoverage = 0;
       render();
     });
   });
@@ -423,6 +428,7 @@ function bindScreen() {
   document.querySelectorAll("[data-clear-trace]").forEach(button => {
     button.addEventListener("click", () => {
       state.reward = "";
+      state.traceCoverage = 0;
       render();
     });
   });
@@ -521,6 +527,11 @@ function checkMatch() {
 
 function completeTraceTask() {
   if (state.traceCompleted) return;
+  if (!hasEnoughTraceForDone()) {
+    state.reward = "Try the dots first.";
+    updateRewardStrip();
+    return;
+  }
   state.traceCompleted = true;
   state.reward = `Great job! Next: ${nextTraceLabel()}`;
   updateRewardStrip();
@@ -534,6 +545,10 @@ function completeTraceTask() {
       advanceNumberTask();
     }
   }, 3600);
+}
+
+function hasEnoughTraceForDone() {
+  return state.traceCoverage >= 0.16;
 }
 
 function nextTraceLabel() {
@@ -565,6 +580,7 @@ function advanceLetterTask() {
 
   state.reward = "";
   state.traceCompleted = false;
+  state.traceCoverage = 0;
   render();
 }
 
@@ -573,6 +589,7 @@ function advanceNumberTask() {
   state.number = numbers[(currentIndex + 1) % numbers.length];
   state.reward = "";
   state.traceCompleted = false;
+  state.traceCoverage = 0;
   render();
 }
 
@@ -756,9 +773,12 @@ function setupCanvas() {
   const totalGuideCells = countGuideCells(mask);
   const autoCompleteDistance = guide.length > 1 ? 920 : 720;
   const requiredCoverage = guide.length > 1 ? 0.68 : 0.72;
+  const feedbackCoverage = guide.length > 1 ? 0.32 : 0.36;
   const minimumTraceTime = 1800;
 
   drawGuide(context, canvas, guide);
+
+  const currentCoverage = () => touchedGuideCells.size / Math.max(totalGuideCells, 1);
 
   const sparklePoint = event => {
     const rect = canvas.getBoundingClientRect();
@@ -785,6 +805,7 @@ function setupCanvas() {
     lastPoint = p;
     if (!traceStartedAt) traceStartedAt = Date.now();
     markGuideCell(p, mask, touchedGuideCells);
+    state.traceCoverage = currentCoverage();
     context.beginPath();
     context.moveTo(p.x, p.y);
   };
@@ -816,7 +837,8 @@ function setupCanvas() {
       showTraceSparkle(sparkleContainer, sp.x, sp.y);
     }
 
-    const coverage = touchedGuideCells.size / Math.max(totalGuideCells, 1);
+    const coverage = currentCoverage();
+    state.traceCoverage = coverage;
     const hasTracedLongEnough = Date.now() - traceStartedAt >= minimumTraceTime;
 
     if (
@@ -829,7 +851,7 @@ function setupCanvas() {
       return;
     }
 
-    if (distance > 220 && !state.traceCompleted) {
+    if (distance > 260 && coverage >= feedbackCoverage && !state.traceCompleted) {
       state.reward = "Nice tracing. Tap Done when ready.";
       const reward = document.querySelector(".reward-strip");
       if (reward) reward.textContent = state.reward;
@@ -862,6 +884,22 @@ function drawGuide(context, canvas, guide) {
 }
 
 function drawGuideText(context, canvas, guide) {
+  if (guide === "A") {
+    drawUpperAStrokeGuide(context);
+    return;
+  }
+
+  if (guide === "B") {
+    drawUpperBStrokeGuide(context);
+    return;
+  }
+
+  const worksheetStrokes = uppercaseWorksheetStrokes(guide);
+  if (worksheetStrokes) {
+    drawWorksheetStrokeGuide(context, worksheetStrokes);
+    return;
+  }
+
   context.save();
   context.font = guide.length > 1 ? "150px Arial Rounded MT Bold, Arial" : "170px Arial Rounded MT Bold, Arial";
   context.textAlign = "center";
@@ -875,6 +913,371 @@ function drawGuideText(context, canvas, guide) {
   context.restore();
 }
 
+function drawUpperAStrokeGuide(context) {
+  const strokes = upperAStrokes();
+
+  context.save();
+  context.setLineDash([]);
+  context.lineCap = "round";
+  context.lineJoin = "round";
+
+  drawUpperAOutline(context);
+
+  strokes.forEach((points, index) => {
+    drawDottedPolyline(context, points, {
+      fillStyle: "#27416f",
+      radius: 3,
+      spacing: index === 2 ? 12 : 11.5,
+      skipFirst: false
+    });
+  });
+  drawGuideDot(context, 180, 74, 3);
+  context.restore();
+}
+
+function drawUpperAOutline(context) {
+  context.save();
+  context.strokeStyle = "#27416f";
+  context.lineWidth = 4.5;
+  context.lineCap = "round";
+  context.lineJoin = "round";
+
+  context.beginPath();
+  context.moveTo(92, 184);
+  context.lineTo(156, 54);
+  context.quadraticCurveTo(180, 30, 204, 54);
+  context.lineTo(268, 184);
+  context.quadraticCurveTo(272, 196, 260, 198);
+  context.lineTo(238, 198);
+  context.quadraticCurveTo(226, 198, 222, 186);
+  context.lineTo(208, 150);
+  context.lineTo(152, 150);
+  context.lineTo(138, 186);
+  context.quadraticCurveTo(134, 198, 122, 198);
+  context.lineTo(100, 198);
+  context.quadraticCurveTo(88, 196, 92, 184);
+  context.closePath();
+  context.stroke();
+
+  context.beginPath();
+  context.moveTo(160, 130);
+  context.lineTo(180, 76);
+  context.lineTo(200, 130);
+  context.closePath();
+  context.stroke();
+  context.restore();
+}
+
+function upperAStrokes() {
+  return [
+    [{ x: 116, y: 176 }, { x: 167, y: 66 }],
+    [{ x: 193, y: 66 }, { x: 244, y: 176 }],
+    [{ x: 154, y: 141 }, { x: 206, y: 141 }]
+  ];
+}
+
+function drawDottedPolyline(context, points, options) {
+  context.save();
+  context.fillStyle = options.fillStyle;
+
+  points.slice(0, -1).forEach((start, index) => {
+    const end = points[index + 1];
+    const length = Math.hypot(end.x - start.x, end.y - start.y);
+    const steps = Math.max(1, Math.floor(length / options.spacing));
+
+    const startStep = options.skipFirst ? 1 : 0;
+    for (let step = startStep; step <= steps; step += 1) {
+      const progress = step / steps;
+      const x = start.x + (end.x - start.x) * progress;
+      const y = start.y + (end.y - start.y) * progress;
+      context.beginPath();
+      context.arc(x, y, options.radius, 0, Math.PI * 2);
+      context.fill();
+    }
+  });
+
+  context.restore();
+}
+
+function drawGuideDot(context, x, y, radius) {
+  context.save();
+  context.fillStyle = "#27416f";
+  context.beginPath();
+  context.arc(x, y, radius, 0, Math.PI * 2);
+  context.fill();
+  context.restore();
+}
+
+function drawUpperBStrokeGuide(context) {
+  const strokes = upperBStrokes();
+
+  context.save();
+  context.lineCap = "round";
+  context.lineJoin = "round";
+
+  drawUpperBPath(context, {
+    strokeStyle: "#27416f",
+    lineWidth: 52
+  });
+  drawUpperBPath(context, {
+    strokeStyle: "#fff8dc",
+    lineWidth: 42
+  });
+
+  strokes.forEach(points => {
+    drawDottedPolyline(context, points, {
+      fillStyle: "#27416f",
+      radius: 3,
+      spacing: 12,
+      skipFirst: false
+    });
+  });
+  context.restore();
+}
+
+function drawUpperBPath(context, options) {
+  context.save();
+  context.strokeStyle = options.strokeStyle;
+  context.lineWidth = options.lineWidth;
+  context.lineCap = "round";
+  context.lineJoin = "round";
+
+  context.beginPath();
+  context.moveTo(124, 42);
+  context.lineTo(124, 178);
+
+  context.moveTo(124, 42);
+  context.bezierCurveTo(220, 42, 226, 103, 124, 103);
+
+  context.moveTo(124, 103);
+  context.bezierCurveTo(236, 103, 236, 178, 124, 178);
+
+  context.stroke();
+  context.restore();
+}
+
+function upperBStrokes() {
+  return [
+    [{ x: 124, y: 42 }, { x: 124, y: 178 }],
+    cubicPoints({ x: 124, y: 42 }, { x: 220, y: 42 }, { x: 226, y: 103 }, { x: 124, y: 103 }, 15),
+    cubicPoints({ x: 124, y: 103 }, { x: 236, y: 103 }, { x: 236, y: 178 }, { x: 124, y: 178 }, 18)
+  ];
+}
+
+function drawWorksheetStrokeGuide(context, strokes) {
+  context.save();
+  drawWorksheetStrokePath(context, strokes, {
+    strokeStyle: "#27416f",
+    lineWidth: 52
+  });
+  drawWorksheetStrokePath(context, strokes, {
+    strokeStyle: "#fff8dc",
+    lineWidth: 42
+  });
+  strokes.forEach(points => {
+    drawDottedPolyline(context, points, {
+      fillStyle: "#27416f",
+      radius: 3,
+      spacing: 12,
+      skipFirst: false
+    });
+  });
+  context.restore();
+}
+
+function drawWorksheetStrokePath(context, strokes, options) {
+  context.save();
+  context.strokeStyle = options.strokeStyle;
+  context.lineWidth = options.lineWidth;
+  context.lineCap = "round";
+  context.lineJoin = "round";
+
+  strokes.forEach(points => {
+    context.beginPath();
+    context.moveTo(points[0].x, points[0].y);
+    points.slice(1).forEach(point => context.lineTo(point.x, point.y));
+    context.stroke();
+  });
+
+  context.restore();
+}
+
+function uppercaseWorksheetStrokes(guide) {
+  switch (guide) {
+    case "C":
+      return [[
+        ...cubicPoints({ x: 234, y: 62 }, { x: 190, y: 34 }, { x: 120, y: 50 }, { x: 116, y: 112 }, 18),
+        ...cubicPoints({ x: 116, y: 112 }, { x: 120, y: 184 }, { x: 190, y: 192 }, { x: 234, y: 162 }, 18).slice(1)
+      ]];
+    case "D":
+      return [
+        [{ x: 124, y: 42 }, { x: 124, y: 178 }],
+        cubicPoints({ x: 124, y: 42 }, { x: 252, y: 46 }, { x: 252, y: 174 }, { x: 124, y: 178 }, 26)
+      ];
+    case "E":
+      return [
+        [{ x: 236, y: 48 }, { x: 124, y: 48 }, { x: 124, y: 178 }, { x: 238, y: 178 }],
+        [{ x: 124, y: 112 }, { x: 214, y: 112 }]
+      ];
+    case "F":
+      return [
+        [{ x: 236, y: 48 }, { x: 124, y: 48 }, { x: 124, y: 178 }],
+        [{ x: 124, y: 112 }, { x: 214, y: 112 }]
+      ];
+    case "G":
+      return [
+        [
+          ...cubicPoints({ x: 238, y: 62 }, { x: 198, y: 34 }, { x: 112, y: 46 }, { x: 108, y: 112 }, 16),
+          ...cubicPoints({ x: 108, y: 112 }, { x: 112, y: 186 }, { x: 226, y: 188 }, { x: 240, y: 138 }, 18).slice(1)
+        ],
+        [{ x: 202, y: 126 }, { x: 242, y: 126 }, { x: 242, y: 172 }]
+      ];
+    case "H":
+      return [
+        [{ x: 120, y: 44 }, { x: 120, y: 178 }],
+        [{ x: 240, y: 44 }, { x: 240, y: 178 }],
+        [{ x: 120, y: 112 }, { x: 240, y: 112 }]
+      ];
+    case "I":
+      return [
+        [{ x: 132, y: 48 }, { x: 228, y: 48 }],
+        [{ x: 180, y: 48 }, { x: 180, y: 178 }],
+        [{ x: 132, y: 178 }, { x: 228, y: 178 }]
+      ];
+    case "J":
+      return [
+        [{ x: 132, y: 48 }, { x: 236, y: 48 }],
+        [{ x: 214, y: 48 }, { x: 214, y: 142 }],
+        cubicPoints({ x: 214, y: 142 }, { x: 214, y: 188 }, { x: 138, y: 188 }, { x: 138, y: 144 }, 18)
+      ];
+    case "K":
+      return [
+        [{ x: 124, y: 44 }, { x: 124, y: 178 }],
+        [{ x: 238, y: 48 }, { x: 124, y: 112 }],
+        [{ x: 124, y: 112 }, { x: 242, y: 178 }]
+      ];
+    case "L":
+      return [[{ x: 124, y: 44 }, { x: 124, y: 178 }, { x: 238, y: 178 }]];
+    case "M":
+      return [[
+        { x: 104, y: 178 },
+        { x: 104, y: 48 },
+        { x: 180, y: 124 },
+        { x: 256, y: 48 },
+        { x: 256, y: 178 }
+      ]];
+    case "N":
+      return [[
+        { x: 116, y: 178 },
+        { x: 116, y: 48 },
+        { x: 244, y: 178 },
+        { x: 244, y: 48 }
+      ]];
+    case "O":
+      return [ellipsePoints(180, 112, 74, 72, 38)];
+    case "P":
+      return [
+        [{ x: 124, y: 178 }, { x: 124, y: 44 }],
+        cubicPoints({ x: 124, y: 44 }, { x: 236, y: 44 }, { x: 236, y: 116 }, { x: 124, y: 116 }, 24)
+      ];
+    case "Q":
+      return [
+        ellipsePoints(180, 108, 72, 68, 38),
+        [{ x: 214, y: 150 }, { x: 256, y: 188 }]
+      ];
+    case "R":
+      return [
+        [{ x: 124, y: 178 }, { x: 124, y: 44 }],
+        cubicPoints({ x: 124, y: 44 }, { x: 236, y: 44 }, { x: 236, y: 116 }, { x: 124, y: 116 }, 24),
+        [{ x: 154, y: 116 }, { x: 244, y: 178 }]
+      ];
+    case "S":
+      return [[
+        ...cubicPoints({ x: 238, y: 58 }, { x: 186, y: 34 }, { x: 112, y: 54 }, { x: 122, y: 100 }, 16),
+        ...cubicPoints({ x: 122, y: 100 }, { x: 132, y: 136 }, { x: 236, y: 102 }, { x: 236, y: 154 }, 18).slice(1),
+        ...cubicPoints({ x: 236, y: 154 }, { x: 236, y: 196 }, { x: 126, y: 190 }, { x: 102, y: 164 }, 16).slice(1)
+      ]];
+    case "T":
+      return [
+        [{ x: 112, y: 48 }, { x: 248, y: 48 }],
+        [{ x: 180, y: 48 }, { x: 180, y: 178 }]
+      ];
+    case "U":
+      return [[
+        { x: 116, y: 48 },
+        { x: 116, y: 128 },
+        ...cubicPoints({ x: 116, y: 128 }, { x: 116, y: 188 }, { x: 244, y: 188 }, { x: 244, y: 128 }, 20).slice(1),
+        { x: 244, y: 48 }
+      ]];
+    case "V":
+      return [[{ x: 108, y: 48 }, { x: 180, y: 178 }, { x: 252, y: 48 }]];
+    case "W":
+      return [[
+        { x: 88, y: 48 },
+        { x: 126, y: 178 },
+        { x: 180, y: 94 },
+        { x: 234, y: 178 },
+        { x: 272, y: 48 }
+      ]];
+    case "X":
+      return [
+        [{ x: 112, y: 48 }, { x: 248, y: 178 }],
+        [{ x: 248, y: 48 }, { x: 112, y: 178 }]
+      ];
+    case "Y":
+      return [
+        [{ x: 104, y: 48 }, { x: 180, y: 112 }],
+        [{ x: 256, y: 48 }, { x: 180, y: 112 }, { x: 180, y: 190 }]
+      ];
+    case "Z":
+      return [[{ x: 112, y: 48 }, { x: 248, y: 48 }, { x: 112, y: 178 }, { x: 248, y: 178 }]];
+    default:
+      return null;
+  }
+}
+
+function cubicPoints(start, controlA, controlB, end, steps) {
+  return Array.from({ length: steps + 1 }, (_, index) => {
+    const t = index / steps;
+    const inverse = 1 - t;
+    return {
+      x: (inverse ** 3 * start.x) +
+        (3 * inverse ** 2 * t * controlA.x) +
+        (3 * inverse * t ** 2 * controlB.x) +
+        (t ** 3 * end.x),
+      y: (inverse ** 3 * start.y) +
+        (3 * inverse ** 2 * t * controlA.y) +
+        (3 * inverse * t ** 2 * controlB.y) +
+        (t ** 3 * end.y)
+    };
+  });
+}
+
+function arcPoints(centerX, centerY, radiusX, radiusY, startAngle, endAngle, steps) {
+  return Array.from({ length: steps + 1 }, (_, index) => {
+    const progress = index / steps;
+    const angle = startAngle + (endAngle - startAngle) * progress;
+    return {
+      x: centerX + Math.cos(angle) * radiusX,
+      y: centerY + Math.sin(angle) * radiusY
+    };
+  });
+}
+
+function ellipsePoints(centerX, centerY, radiusX, radiusY, steps) {
+  return Array.from({ length: steps + 1 }, (_, index) => {
+    const angle = (Math.PI * 2 * index) / steps;
+    return {
+      x: centerX + Math.cos(angle) * radiusX,
+      y: centerY + Math.sin(angle) * radiusY
+    };
+  });
+}
+
+function traceGuideFont(guide) {
+  return guide.length > 1 ? "164px Arial Rounded MT Bold, Arial" : "188px Arial Rounded MT Bold, Arial";
+}
+
 function createGuideMask(canvas, guide) {
   const maskCanvas = document.createElement("canvas");
   maskCanvas.width = canvas.width;
@@ -882,11 +1285,37 @@ function createGuideMask(canvas, guide) {
   const maskContext = maskCanvas.getContext("2d");
   maskContext.fillStyle = "black";
   maskContext.fillRect(0, 0, canvas.width, canvas.height);
+
+  if (guide === "A") {
+    drawWorksheetStrokePath(maskContext, upperAStrokes(), {
+      strokeStyle: "white",
+      lineWidth: 44
+    });
+    return maskContext;
+  }
+
+  if (guide === "B") {
+    drawUpperBPath(maskContext, {
+      strokeStyle: "white",
+      lineWidth: 44
+    });
+    return maskContext;
+  }
+
+  const worksheetStrokes = uppercaseWorksheetStrokes(guide);
+  if (worksheetStrokes) {
+    drawWorksheetStrokePath(maskContext, worksheetStrokes, {
+      strokeStyle: "white",
+      lineWidth: 44
+    });
+    return maskContext;
+  }
+
   maskContext.save();
-  maskContext.font = guide.length > 1 ? "150px Arial Rounded MT Bold, Arial" : "170px Arial Rounded MT Bold, Arial";
+  maskContext.font = traceGuideFont(guide);
   maskContext.textAlign = "center";
   maskContext.textBaseline = "middle";
-  maskContext.lineWidth = 20;
+  maskContext.lineWidth = 26;
   maskContext.strokeStyle = "white";
   maskContext.fillStyle = "white";
   maskContext.strokeText(guide, canvas.width / 2, canvas.height / 2 + 8);
@@ -936,6 +1365,16 @@ function isNearGuide(point, maskContext, radius) {
   }
 
   return false;
+}
+
+function isInsideGuide(point, maskContext) {
+  const x = Math.round(point.x);
+  const y = Math.round(point.y);
+  const width = maskContext.canvas.width;
+  const height = maskContext.canvas.height;
+  if (x < 0 || y < 0 || x >= width || y >= height) return false;
+  const pixel = maskContext.getImageData(x, y, 1, 1).data;
+  return pixel[0] > 180;
 }
 
 render();
