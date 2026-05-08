@@ -171,18 +171,22 @@ function renderHome() {
       </div>
       <div class="menu-grid">
         <button class="menu-btn abc" data-nav="abc">
+          <span class="menu-visual">A a</span>
           <strong>ABC</strong>
           <small>Trace Letters</small>
         </button>
         <button class="menu-btn numbers" data-nav="numbers">
+          <span class="menu-visual">1 2 3</span>
           <strong>123</strong>
           <small>Trace Numbers</small>
         </button>
         <button class="menu-btn play" data-nav="play">
+          <span class="menu-visual">A → a</span>
           <strong>Play</strong>
           <small>Match Game</small>
         </button>
         <button class="menu-btn parent" data-nav="parentGate">
+          <span class="menu-visual">Lock</span>
           <strong>Grown-ups</strong>
           <small>Settings</small>
         </button>

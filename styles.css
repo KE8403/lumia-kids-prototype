@@ -500,17 +500,32 @@ button {
 }
 
 .menu-btn {
-  min-height: 142px;
-  padding: 16px 12px;
+  min-height: 156px;
+  padding: 14px 12px;
   display: grid;
   align-content: center;
   justify-items: center;
-  gap: 12px;
+  gap: 9px;
   font-size: 20px;
 }
 
+.menu-visual {
+  min-width: 78px;
+  min-height: 42px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: inset 0 -3px 0 rgba(35, 50, 77, 0.08);
+  color: var(--ink);
+  font-size: 24px;
+  line-height: 1;
+  font-weight: 900;
+}
+
 .menu-btn strong {
-  font-size: 38px;
+  font-size: 31px;
   line-height: 1;
 }
 
@@ -523,19 +538,27 @@ button {
 }
 
 .abc {
-  background: #e8f4ff;
+  background:
+    radial-gradient(circle at 18% 20%, rgba(79, 143, 247, 0.18), transparent 24%),
+    #e8f4ff;
 }
 
 .numbers {
-  background: #fff3c7;
+  background:
+    radial-gradient(circle at 84% 22%, rgba(255, 216, 90, 0.32), transparent 24%),
+    #fff3c7;
 }
 
 .play {
-  background: #e8f8e7;
+  background:
+    radial-gradient(circle at 18% 82%, rgba(121, 221, 178, 0.34), transparent 24%),
+    #e8f8e7;
 }
 
 .parent {
-  background: #ffe9ef;
+  background:
+    radial-gradient(circle at 82% 80%, rgba(255, 117, 169, 0.18), transparent 24%),
+    #ffe9ef;
 }
 
 .letter-grid,
