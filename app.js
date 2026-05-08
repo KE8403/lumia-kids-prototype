@@ -199,9 +199,13 @@ function renderAbc() {
   return `
     <section class="screen">
       ${topbar("ABC")}
+      <p class="helper-text">Pick a letter to trace.</p>
       <div class="letter-grid">
         ${letters.map(letter => `
-          <button class="tile letter" data-letter="${letter}">${letter} ${letter.toLowerCase()}</button>
+          <button class="tile letter" data-letter="${letter}">
+            <span>${letter}</span>
+            <small>${letter.toLowerCase()}</small>
+          </button>
         `).join("")}
       </div>
     </section>
@@ -237,9 +241,12 @@ function renderNumbers() {
   return `
     <section class="screen">
       ${topbar("123")}
+      <p class="helper-text">Pick a number to trace.</p>
       <div class="number-grid">
         ${numbers.map(number => `
-          <button class="tile number" data-number="${number}">${number}</button>
+          <button class="tile number" data-number="${number}">
+            <span>${number}</span>
+          </button>
         `).join("")}
       </div>
     </section>

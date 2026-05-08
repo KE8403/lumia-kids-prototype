@@ -564,8 +564,8 @@ button {
 .letter-grid,
 .number-grid {
   display: grid;
-  gap: 10px;
-  margin-top: 18px;
+  gap: 12px;
+  margin-top: 14px;
   padding-bottom: 18px;
 }
 
@@ -580,20 +580,45 @@ button {
 .tile {
   min-height: 78px;
   border-radius: 8px;
-  background: #ffffff;
+  background:
+    radial-gradient(circle at 82% 18%, rgba(255, 216, 90, 0.24), transparent 22%),
+    #ffffff;
   box-shadow: var(--soft-shadow);
   display: grid;
+  align-content: center;
   place-items: center;
+  gap: 2px;
   font-weight: 900;
   color: var(--ink);
 }
 
 .tile.letter {
-  font-size: 28px;
+  grid-template-columns: auto auto;
+  column-gap: 6px;
+}
+
+.tile.letter span {
+  color: #27416f;
+  font-size: 34px;
+  line-height: 1;
+}
+
+.tile.letter small {
+  color: #4f8ff7;
+  font-size: 25px;
+  line-height: 1;
 }
 
 .tile.number {
-  font-size: 30px;
+  background:
+    radial-gradient(circle at 18% 18%, rgba(121, 221, 178, 0.28), transparent 24%),
+    #ffffff;
+}
+
+.tile.number span {
+  color: #2f7f45;
+  font-size: 34px;
+  line-height: 1;
 }
 
 .detail-hero {
