@@ -906,6 +906,12 @@ function drawGuideText(context, canvas, guide) {
     return;
   }
 
+  const lowercaseStrokes = lowercaseWorksheetStrokes(guide);
+  if (lowercaseStrokes) {
+    drawWorksheetStrokeGuide(context, lowercaseStrokes.strokes, lowercaseStrokes.options);
+    return;
+  }
+
   context.save();
   context.font = guide.length > 1 ? "150px Arial Rounded MT Bold, Arial" : "170px Arial Rounded MT Bold, Arial";
   context.textAlign = "center";
@@ -1316,6 +1322,164 @@ function numberWorksheetStrokes(guide) {
   };
 }
 
+function lowercaseWorksheetStrokes(guide) {
+  const strokeOptions = { lineWidth: 46, dotRadius: 2.8, dotSpacing: 11 };
+
+  switch (guide) {
+    case "ɑ":
+      return { strokes: [
+        ellipsePoints(172, 122, 46, 48, 34),
+        [{ x: 214, y: 84 }, { x: 214, y: 170 }]
+      ], options: strokeOptions };
+    case "b":
+      return { strokes: [
+        [{ x: 130, y: 44 }, { x: 130, y: 170 }],
+        ellipsePoints(176, 126, 46, 44, 34)
+      ], options: strokeOptions };
+    case "c":
+      return { strokes: [[
+        ...cubicPoints({ x: 224, y: 92 }, { x: 190, y: 68 }, { x: 124, y: 78 }, { x: 122, y: 126 }, 16),
+        ...cubicPoints({ x: 122, y: 126 }, { x: 126, y: 176 }, { x: 192, y: 180 }, { x: 224, y: 154 }, 16).slice(1)
+      ]], options: strokeOptions };
+    case "d":
+      return { strokes: [
+        ellipsePoints(164, 126, 46, 44, 34),
+        [{ x: 210, y: 44 }, { x: 210, y: 170 }]
+      ], options: strokeOptions };
+    case "e":
+      return { strokes: [[
+        { x: 220, y: 122 },
+        { x: 130, y: 122 },
+        ...cubicPoints({ x: 130, y: 122 }, { x: 132, y: 72 }, { x: 224, y: 74 }, { x: 224, y: 126 }, 18).slice(1),
+        ...cubicPoints({ x: 224, y: 126 }, { x: 222, y: 180 }, { x: 142, y: 182 }, { x: 122, y: 144 }, 16).slice(1)
+      ]], options: strokeOptions };
+    case "f":
+      return { strokes: [
+        cubicPoints({ x: 210, y: 48 }, { x: 150, y: 34 }, { x: 152, y: 84 }, { x: 152, y: 172 }, 24),
+        [{ x: 122, y: 100 }, { x: 206, y: 100 }]
+      ], options: strokeOptions };
+    case "g":
+      return { strokes: [
+        ellipsePoints(162, 92, 46, 42, 34),
+        [{ x: 210, y: 56 }, { x: 210, y: 166 }],
+        [
+          { x: 210, y: 166 },
+          ...cubicPoints({ x: 210, y: 166 }, { x: 196, y: 206 }, { x: 122, y: 202 }, { x: 112, y: 174 }, 20).slice(1)
+        ]
+      ], options: strokeOptions };
+    case "h":
+      return { strokes: [[
+        { x: 126, y: 44 },
+        { x: 126, y: 172 },
+        ...cubicPoints({ x: 126, y: 110 }, { x: 148, y: 76 }, { x: 216, y: 80 }, { x: 216, y: 172 }, 22).slice(1)
+      ]], options: strokeOptions };
+    case "i":
+      return { strokes: [
+        [{ x: 178, y: 90 }, { x: 178, y: 172 }],
+        [{ x: 178, y: 50 }, { x: 178, y: 52 }]
+      ], options: strokeOptions };
+    case "j":
+      return { strokes: [
+        [{ x: 198, y: 88 }, { x: 198, y: 166 }],
+        cubicPoints({ x: 198, y: 166 }, { x: 198, y: 212 }, { x: 130, y: 210 }, { x: 136, y: 170 }, 18),
+        [{ x: 198, y: 50 }, { x: 198, y: 52 }]
+      ], options: strokeOptions };
+    case "k":
+      return { strokes: [
+        [{ x: 126, y: 44 }, { x: 126, y: 172 }],
+        [{ x: 218, y: 86 }, { x: 126, y: 126 }],
+        [{ x: 126, y: 126 }, { x: 224, y: 172 }]
+      ], options: strokeOptions };
+    case "l":
+      return { strokes: [[{ x: 180, y: 44 }, { x: 180, y: 172 }]], options: strokeOptions };
+    case "m":
+      return { strokes: [[
+        { x: 88, y: 172 },
+        { x: 88, y: 88 },
+        ...cubicPoints({ x: 88, y: 112 }, { x: 110, y: 72 }, { x: 154, y: 86 }, { x: 154, y: 172 }, 18).slice(1),
+        ...cubicPoints({ x: 154, y: 112 }, { x: 178, y: 72 }, { x: 230, y: 86 }, { x: 230, y: 172 }, 18).slice(1)
+      ]], options: { lineWidth: 40, dotRadius: 2.5, dotSpacing: 10 } };
+    case "n":
+      return { strokes: [[
+        { x: 126, y: 172 },
+        { x: 126, y: 88 },
+        ...cubicPoints({ x: 126, y: 112 }, { x: 150, y: 72 }, { x: 220, y: 84 }, { x: 220, y: 172 }, 22).slice(1)
+      ]], options: strokeOptions };
+    case "o":
+      return { strokes: [ellipsePoints(180, 126, 50, 48, 36)], options: strokeOptions };
+    case "p":
+      return { strokes: [
+        [{ x: 130, y: 202 }, { x: 130, y: 86 }],
+        ellipsePoints(176, 126, 46, 42, 34)
+      ], options: strokeOptions };
+    case "q":
+      return { strokes: [
+        ellipsePoints(164, 112, 46, 42, 34),
+        [{ x: 210, y: 72 }, { x: 210, y: 192 }],
+        cubicPoints({ x: 210, y: 192 }, { x: 224, y: 202 }, { x: 246, y: 192 }, { x: 254, y: 176 }, 8)
+      ], options: strokeOptions };
+    case "r":
+      return { strokes: [[
+        { x: 132, y: 172 },
+        { x: 132, y: 88 },
+        ...cubicPoints({ x: 132, y: 106 }, { x: 154, y: 80 }, { x: 196, y: 84 }, { x: 206, y: 104 }, 12).slice(1)
+      ]], options: strokeOptions };
+    case "s":
+      return { strokes: [
+        [
+          ...cubicPoints({ x: 216, y: 94 }, { x: 184, y: 76 }, { x: 128, y: 86 }, { x: 148, y: 120 }, 16),
+          ...cubicPoints({ x: 148, y: 120 }, { x: 174, y: 144 }, { x: 218, y: 146 }, { x: 212, y: 170 }, 14).slice(1),
+          ...cubicPoints({ x: 212, y: 170 }, { x: 188, y: 194 }, { x: 132, y: 186 }, { x: 126, y: 160 }, 14).slice(1)
+        ],
+      ], options: strokeOptions };
+    case "t":
+      return { strokes: [
+        [{ x: 176, y: 58 }, { x: 176, y: 160 }],
+        cubicPoints({ x: 176, y: 160 }, { x: 176, y: 184 }, { x: 214, y: 178 }, { x: 218, y: 156 }, 10),
+        [{ x: 134, y: 96 }, { x: 216, y: 96 }]
+      ], options: strokeOptions };
+    case "u":
+      return { strokes: [[
+        { x: 126, y: 88 },
+        { x: 126, y: 146 },
+        ...cubicPoints({ x: 126, y: 146 }, { x: 126, y: 184 }, { x: 214, y: 184 }, { x: 214, y: 146 }, 18).slice(1),
+        { x: 214, y: 88 }
+      ]], options: strokeOptions };
+    case "v":
+      return { strokes: [[{ x: 122, y: 88 }, { x: 180, y: 172 }, { x: 238, y: 88 }]], options: strokeOptions };
+    case "w":
+      return { strokes: [[
+        { x: 110, y: 88 },
+        { x: 138, y: 172 },
+        { x: 180, y: 116 },
+        { x: 222, y: 172 },
+        { x: 250, y: 88 }
+      ]], options: { lineWidth: 40, dotRadius: 2.5, dotSpacing: 10 } };
+    case "x":
+      return { strokes: [
+        [{ x: 126, y: 88 }, { x: 228, y: 172 }],
+        [{ x: 228, y: 88 }, { x: 126, y: 172 }]
+      ], options: strokeOptions };
+    case "y":
+      return { strokes: [
+        [
+          { x: 132, y: 58 },
+          { x: 132, y: 122 },
+          ...cubicPoints({ x: 132, y: 122 }, { x: 132, y: 166 }, { x: 228, y: 166 }, { x: 228, y: 122 }, 18).slice(1)
+        ],
+        [
+          { x: 228, y: 58 },
+          { x: 228, y: 184 },
+          ...cubicPoints({ x: 228, y: 184 }, { x: 222, y: 214 }, { x: 136, y: 212 }, { x: 136, y: 180 }, 16).slice(1)
+        ]
+      ], options: strokeOptions };
+    case "z":
+      return { strokes: [[{ x: 126, y: 90 }, { x: 226, y: 90 }, { x: 126, y: 172 }, { x: 226, y: 172 }]], options: strokeOptions };
+    default:
+      return null;
+  }
+}
+
 function digitWorksheetStrokes(digit) {
   switch (digit) {
     case "0":
@@ -1475,6 +1639,15 @@ function createGuideMask(canvas, guide) {
     drawWorksheetStrokePath(maskContext, numberStrokes.strokes, {
       strokeStyle: "white",
       lineWidth: Math.max(10, (numberStrokes.options.lineWidth ?? 52) - 8)
+    });
+    return maskContext;
+  }
+
+  const lowercaseStrokes = lowercaseWorksheetStrokes(guide);
+  if (lowercaseStrokes) {
+    drawWorksheetStrokePath(maskContext, lowercaseStrokes.strokes, {
+      strokeStyle: "white",
+      lineWidth: Math.max(10, (lowercaseStrokes.options.lineWidth ?? 46) - 8)
     });
     return maskContext;
   }
