@@ -235,8 +235,8 @@ function renderLetter() {
         </button>
       </div>
       <div class="mode-row">
-        <button class="pill-btn ${state.traceMode === "upper" ? "active" : ""}" data-mode="upper">${letter}</button>
-        <button class="pill-btn ${state.traceMode === "lower" ? "active" : ""}" data-mode="lower">${lowerChar}</button>
+        <button class="pill-btn ${state.traceMode === "upper" ? "active" : ""}" data-mode="upper">Big ${letter}</button>
+        <button class="pill-btn ${state.traceMode === "lower" ? "active" : ""}" data-mode="lower">Small ${lowerChar}</button>
       </div>
       ${tracePanel(activeChar)}
     </section>
