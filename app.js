@@ -900,6 +900,12 @@ function drawGuideText(context, canvas, guide) {
     return;
   }
 
+  const numberStrokes = numberWorksheetStrokes(guide);
+  if (numberStrokes) {
+    drawWorksheetStrokeGuide(context, numberStrokes.strokes, numberStrokes.options);
+    return;
+  }
+
   context.save();
   context.font = guide.length > 1 ? "150px Arial Rounded MT Bold, Arial" : "170px Arial Rounded MT Bold, Arial";
   context.textAlign = "center";
@@ -1064,24 +1070,50 @@ function upperBStrokes() {
   ];
 }
 
-function drawWorksheetStrokeGuide(context, strokes) {
+function drawWorksheetStrokeGuide(context, strokes, options = {}) {
+  const lineWidth = options.lineWidth ?? 52;
+  const dotRadius = options.dotRadius ?? 3;
+  const dotSpacing = options.dotSpacing ?? 12;
+
   context.save();
   drawWorksheetStrokePath(context, strokes, {
     strokeStyle: "#27416f",
-    lineWidth: 52
+    lineWidth
   });
   drawWorksheetStrokePath(context, strokes, {
     strokeStyle: "#fff8dc",
-    lineWidth: 42
+    lineWidth: Math.max(10, lineWidth - 10)
   });
   strokes.forEach(points => {
     drawDottedPolyline(context, points, {
       fillStyle: "#27416f",
-      radius: 3,
-      spacing: 12,
+      radius: dotRadius,
+      spacing: dotSpacing,
       skipFirst: false
     });
   });
+  drawWorksheetCutouts(context, options.cutouts);
+  context.restore();
+}
+
+function drawWorksheetCutouts(context, cutouts = []) {
+  if (!cutouts.length) return;
+  context.save();
+  context.fillStyle = "#fff8dc";
+  context.strokeStyle = "#27416f";
+  context.lineWidth = 4;
+  context.lineJoin = "round";
+  context.lineCap = "round";
+
+  cutouts.forEach(points => {
+    context.beginPath();
+    context.moveTo(points[0].x, points[0].y);
+    points.slice(1).forEach(point => context.lineTo(point.x, point.y));
+    context.closePath();
+    context.fill();
+    context.stroke();
+  });
+
   context.restore();
 }
 
@@ -1236,6 +1268,133 @@ function uppercaseWorksheetStrokes(guide) {
   }
 }
 
+function numberWorksheetStrokes(guide) {
+  if (!/^\d+$/.test(guide)) return null;
+  const digits = guide.split("");
+  const isSingleDigit = digits.length === 1;
+  const scale = isSingleDigit ? 1.1 : 0.82;
+  const y = isSingleDigit ? 38 : 50;
+  const digitWidth = 100 * scale;
+  const gap = isSingleDigit ? 0 : 10;
+  const totalWidth = (digitWidth * digits.length) + (gap * (digits.length - 1));
+  const startX = (360 - totalWidth) / 2;
+  const digitX = index => startX + (index * (digitWidth + gap));
+
+  const strokes = digits.flatMap((digit, index) =>
+    transformStrokes(
+      digitWorksheetStrokes(digit),
+      digitX(index),
+      y,
+      scale
+    )
+  );
+  const cutouts = digits.flatMap((digit, index) =>
+    transformStrokes(
+      digitWorksheetCutouts(digit),
+      digitX(index),
+      y,
+      scale
+    )
+  );
+
+  return {
+    strokes,
+    cutouts,
+    options: isSingleDigit
+      ? {
+          lineWidth: 52,
+          dotRadius: 3,
+          dotSpacing: 12,
+          cutouts
+        }
+      : {
+          lineWidth: 42,
+          dotRadius: 2.7,
+          dotSpacing: 10,
+          cutouts
+        }
+  };
+}
+
+function digitWorksheetStrokes(digit) {
+  switch (digit) {
+    case "0":
+      return [ellipsePoints(50, 70, 34, 62, 34)];
+    case "1":
+      return [[
+        { x: 38, y: 28 },
+        { x: 54, y: 12 },
+        { x: 54, y: 132 }
+      ]];
+    case "2":
+      return [[
+        ...cubicPoints({ x: 24, y: 32 }, { x: 52, y: 4 }, { x: 92, y: 26 }, { x: 74, y: 60 }, 14),
+        ...cubicPoints({ x: 74, y: 60 }, { x: 60, y: 86 }, { x: 34, y: 100 }, { x: 22, y: 132 }, 12).slice(1),
+        { x: 86, y: 132 }
+      ]];
+    case "3":
+      return [[
+        ...cubicPoints({ x: 24, y: 28 }, { x: 62, y: 0 }, { x: 100, y: 34 }, { x: 58, y: 68 }, 18),
+        ...cubicPoints({ x: 58, y: 68 }, { x: 106, y: 82 }, { x: 86, y: 148 }, { x: 24, y: 120 }, 20).slice(1)
+      ]];
+    case "4":
+      return [
+        [{ x: 74, y: 12 }, { x: 28, y: 92 }, { x: 88, y: 92 }],
+        [{ x: 74, y: 12 }, { x: 74, y: 132 }]
+      ];
+    case "5":
+      return [[
+        { x: 86, y: 16 },
+        { x: 28, y: 16 },
+        { x: 24, y: 70 },
+        { x: 58, y: 70 },
+        ...cubicPoints({ x: 58, y: 70 }, { x: 108, y: 70 }, { x: 98, y: 142 }, { x: 28, y: 126 }, 24).slice(1)
+      ]];
+    case "6":
+      return [[
+        ...cubicPoints({ x: 76, y: 18 }, { x: 36, y: 34 }, { x: 22, y: 76 }, { x: 30, y: 108 }, 16),
+        ...cubicPoints({ x: 30, y: 108 }, { x: 40, y: 154 }, { x: 100, y: 140 }, { x: 84, y: 94 }, 18).slice(1),
+        ...cubicPoints({ x: 84, y: 94 }, { x: 72, y: 58 }, { x: 20, y: 66 }, { x: 30, y: 108 }, 18).slice(1)
+      ]];
+    case "7":
+      return [[
+        { x: 22, y: 18 },
+        { x: 86, y: 18 },
+        { x: 42, y: 132 }
+      ]];
+    case "8":
+      return [[
+        ...cubicPoints({ x: 50, y: 12 }, { x: 94, y: 12 }, { x: 94, y: 66 }, { x: 50, y: 72 }, 18),
+        ...cubicPoints({ x: 50, y: 72 }, { x: 6, y: 78 }, { x: 8, y: 132 }, { x: 50, y: 132 }, 18).slice(1),
+        ...cubicPoints({ x: 50, y: 132 }, { x: 94, y: 132 }, { x: 94, y: 78 }, { x: 50, y: 72 }, 18).slice(1),
+        ...cubicPoints({ x: 50, y: 72 }, { x: 8, y: 66 }, { x: 6, y: 12 }, { x: 50, y: 12 }, 18).slice(1)
+      ]];
+    case "9":
+      return [
+        ellipsePoints(42, 54, 32, 38, 34),
+        [{ x: 79, y: 24 }, { x: 79, y: 142 }]
+      ];
+    default:
+      return [];
+  }
+}
+
+function digitWorksheetCutouts(digit) {
+  if (digit !== "4") return [];
+  return [[
+    { x: 47, y: 86 },
+    { x: 64, y: 46 },
+    { x: 64, y: 86 }
+  ]];
+}
+
+function transformStrokes(strokes, offsetX, offsetY, scale) {
+  return strokes.map(points => points.map(point => ({
+    x: offsetX + (point.x * scale),
+    y: offsetY + (point.y * scale)
+  })));
+}
+
 function cubicPoints(start, controlA, controlB, end, steps) {
   return Array.from({ length: steps + 1 }, (_, index) => {
     const t = index / steps;
@@ -1307,6 +1466,15 @@ function createGuideMask(canvas, guide) {
     drawWorksheetStrokePath(maskContext, worksheetStrokes, {
       strokeStyle: "white",
       lineWidth: 44
+    });
+    return maskContext;
+  }
+
+  const numberStrokes = numberWorksheetStrokes(guide);
+  if (numberStrokes) {
+    drawWorksheetStrokePath(maskContext, numberStrokes.strokes, {
+      strokeStyle: "white",
+      lineWidth: Math.max(10, (numberStrokes.options.lineWidth ?? 52) - 8)
     });
     return maskContext;
   }
