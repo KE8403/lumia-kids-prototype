@@ -142,6 +142,11 @@ function learningPreview() {
   `;
 }
 
+function lowerDisplayLetter(letter) {
+  const lower = letter.toLowerCase();
+  return lower === "a" ? "ɑ" : lower;
+}
+
 function renderSplash() {
   return `
     <section class="screen">
@@ -204,7 +209,7 @@ function renderAbc() {
         ${letters.map(letter => `
           <button class="tile letter" data-letter="${letter}">
             <span>${letter}</span>
-            <small>${letter.toLowerCase()}</small>
+            <small>${lowerDisplayLetter(letter)}</small>
           </button>
         `).join("")}
       </div>
@@ -214,14 +219,15 @@ function renderAbc() {
 
 function renderLetter() {
   const letter = state.letter;
-  const activeChar = state.traceMode === "upper" ? letter : letter.toLowerCase();
+  const lowerChar = lowerDisplayLetter(letter);
+  const activeChar = state.traceMode === "upper" ? letter : lowerChar;
   return `
     <section class="screen">
       ${topbar("Trace Letter", "abc")}
       <div class="detail-hero">
         <div class="display-letter" aria-label="Letter ${letter}">
           <span>${letter}</span>
-          <span>${letter.toLowerCase()}</span>
+          <span>${lowerChar}</span>
         </div>
         <button class="primary-btn hear-btn" data-speak="${letter}" data-speak-volume="${state.traceMode === "upper" ? "1" : "0.55"}" aria-label="Hear ${activeChar}">
           <span class="speaker-icon" aria-hidden="true">&#128266;</span>
@@ -230,7 +236,7 @@ function renderLetter() {
       </div>
       <div class="mode-row">
         <button class="pill-btn ${state.traceMode === "upper" ? "active" : ""}" data-mode="upper">${letter}</button>
-        <button class="pill-btn ${state.traceMode === "lower" ? "active" : ""}" data-mode="lower">${letter.toLowerCase()}</button>
+        <button class="pill-btn ${state.traceMode === "lower" ? "active" : ""}" data-mode="lower">${lowerChar}</button>
       </div>
       ${tracePanel(activeChar)}
     </section>
@@ -538,7 +544,7 @@ function nextTraceLabel() {
 
 function nextLetterTaskLabel() {
   const currentIndex = letters.indexOf(state.letter);
-  if (state.traceMode === "upper") return state.letter.toLowerCase();
+  if (state.traceMode === "upper") return lowerDisplayLetter(state.letter);
   return letters[(currentIndex + 1) % letters.length];
 }
 
