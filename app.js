@@ -619,7 +619,11 @@ function showCelebration() {
   if (!celebration) return;
 
   celebration.innerHTML = `
-    <div class="celebration-word">Hooray!</div>
+    <div class="celebration-card">
+      <div class="celebration-star" aria-hidden="true">★</div>
+      <div class="celebration-word">Hooray!</div>
+      <div class="celebration-note">Star earned</div>
+    </div>
     ${Array.from({ length: 64 }, (_, index) => {
       const left = 8 + Math.random() * 84;
       const delay = Math.random() * 0.85;
