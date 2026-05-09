@@ -124,6 +124,168 @@ button {
   text-align: center;
 }
 
+.star-counter {
+  width: fit-content;
+  min-width: 78px;
+  min-height: 38px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #27416f;
+  box-shadow: var(--soft-shadow);
+  display: inline-grid;
+  grid-auto-flow: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  font-size: 18px;
+  font-weight: 900;
+  border: 3px solid rgba(255, 216, 90, 0.72);
+  position: relative;
+  overflow: visible;
+}
+
+.star-counter span {
+  color: var(--sun);
+  font-size: 22px;
+  line-height: 1;
+  text-shadow: 0 2px 0 rgba(39, 65, 111, 0.14);
+}
+
+.star-counter::before,
+.star-counter::after {
+  content: "✦";
+  position: absolute;
+  color: var(--sun);
+  opacity: 0;
+  pointer-events: none;
+  filter: drop-shadow(0 3px 5px rgba(42, 56, 91, 0.16));
+}
+
+.star-counter::before {
+  left: -8px;
+  top: -8px;
+  font-size: 17px;
+}
+
+.star-counter::after {
+  right: -7px;
+  bottom: -8px;
+  font-size: 14px;
+}
+
+.star-counter.spark {
+  animation: counterGlow 1.9s ease-out;
+}
+
+.star-counter.spark::before {
+  animation: counterSpark 1.15s ease-out;
+}
+
+.star-counter.spark::after {
+  animation: counterSpark 1.15s ease-out 0.14s;
+}
+
+.counter-spark {
+  position: absolute;
+  opacity: 0;
+  color: var(--sun);
+  font-style: normal;
+  pointer-events: none;
+  filter: drop-shadow(0 3px 5px rgba(42, 56, 91, 0.18));
+}
+
+.spark-one {
+  left: -16px;
+  top: 6px;
+  font-size: 20px;
+}
+
+.spark-two {
+  right: -15px;
+  top: -13px;
+  font-size: 18px;
+}
+
+.spark-three {
+  right: 14px;
+  bottom: -18px;
+  font-size: 16px;
+}
+
+.spark-four {
+  left: 16px;
+  top: -18px;
+  font-size: 15px;
+}
+
+.star-counter.spark .counter-spark {
+  animation: counterBurst 1.7s ease-out forwards;
+}
+
+.star-counter.spark .spark-two {
+  animation-delay: 0.1s;
+}
+
+.star-counter.spark .spark-three {
+  animation-delay: 0.18s;
+}
+
+.star-counter.spark .spark-four {
+  animation-delay: 0.28s;
+}
+
+@keyframes counterGlow {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: var(--soft-shadow);
+  }
+  24% {
+    transform: scale(1.18);
+    box-shadow:
+      0 0 0 10px rgba(255, 216, 90, 0.26),
+      0 0 0 20px rgba(132, 217, 139, 0.12),
+      var(--soft-shadow);
+  }
+  54% {
+    transform: scale(1.08);
+    box-shadow:
+      0 0 0 6px rgba(255, 216, 90, 0.2),
+      var(--soft-shadow);
+  }
+}
+
+@keyframes counterSpark {
+  0% {
+    opacity: 0;
+    transform: translateY(4px) scale(0.6) rotate(0deg);
+  }
+  28% {
+    opacity: 1;
+    transform: translateY(0) scale(1) rotate(8deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.85) rotate(18deg);
+  }
+}
+
+@keyframes counterBurst {
+  0% {
+    opacity: 0;
+    transform: translate(0, 6px) scale(0.55) rotate(0deg);
+  }
+  24% {
+    opacity: 1;
+    transform: translate(0, -2px) scale(1.25) rotate(10deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(0, -22px) scale(0.8) rotate(24deg);
+  }
+}
+
 .stars-row {
   position: relative;
   width: calc(var(--mascot-size, 74px) * 2.55);
@@ -676,6 +838,11 @@ button {
   padding: 12px;
 }
 
+.trace-panel .star-counter,
+.parent-panel .star-counter {
+  margin: 0 auto 10px;
+}
+
 .trace-prompt {
   width: fit-content;
   margin: 0 auto 10px;
@@ -822,7 +989,7 @@ button {
   gap: 4px;
   place-items: center;
   border: 4px solid rgba(255, 216, 90, 0.82);
-  animation: popYay 2.8s ease-out forwards;
+  animation: popYay 3.45s ease-out forwards;
 }
 
 .celebration-star {
@@ -836,6 +1003,66 @@ button {
   font-size: 30px;
   text-shadow: 0 2px 0 rgba(39, 65, 111, 0.16);
   animation: starPulse 1.05s ease-in-out 0.2s 2;
+}
+
+.celebration-fly-star {
+  position: absolute;
+  left: 50%;
+  top: 42%;
+  width: 250px;
+  height: 250px;
+  display: grid;
+  place-items: center;
+  filter: drop-shadow(0 14px 18px rgba(42, 56, 91, 0.18));
+  transform: translate(-50%, -50%) scale(0.68);
+  animation: flyStarToCounter 5.35s cubic-bezier(0.26, 0.7, 0.26, 1) 0.55s forwards;
+}
+
+.celebration-fly-star svg {
+  width: 100%;
+  height: 100%;
+}
+
+.celebration-fly-star path {
+  fill: var(--sun);
+  stroke: rgba(255, 255, 255, 0.86);
+  stroke-width: 5;
+  stroke-linejoin: round;
+}
+
+.celebration-fly-star .reward-star-eye {
+  fill: #25304b;
+  stroke: none;
+}
+
+.celebration-fly-star .reward-star-smile {
+  fill: none;
+  stroke: #25304b;
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+.fly-trail {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  color: var(--sun);
+  opacity: 0;
+  font-size: 22px;
+  line-height: 1;
+  filter: drop-shadow(0 4px 6px rgba(42, 56, 91, 0.18));
+  transform: translate(-50%, -50%) scale(0.4);
+  animation: flyTrail 5.35s cubic-bezier(0.26, 0.7, 0.26, 1) 0.72s forwards;
+}
+
+.trail-two {
+  font-size: 18px;
+  animation-delay: 0.94s;
+}
+
+.trail-three {
+  font-size: 15px;
+  animation-delay: 1.16s;
 }
 
 .celebration-word {
@@ -858,7 +1085,72 @@ button {
   height: calc(var(--size) * 1.35);
   border-radius: 5px;
   background: var(--color);
-  animation: fallConfetti 2.75s ease-in var(--delay) forwards;
+  animation: fallConfetti 3.65s ease-in var(--delay) forwards;
+}
+
+@keyframes flyStarToCounter {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.38) rotate(-3deg);
+  }
+  14% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.04) rotate(2deg);
+  }
+  42% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1) rotate(-1deg);
+  }
+  62% {
+    opacity: 1;
+    transform:
+      translate(calc(-50% + var(--fly-x-28, 0px)), calc(-50% + var(--fly-y-28, -50px)))
+      scale(0.72)
+      rotate(1deg);
+  }
+  82% {
+    opacity: 1;
+    transform:
+      translate(calc(-50% + var(--fly-x-68, 0px)), calc(-50% + var(--fly-y-68, -120px)))
+      scale(0.36)
+      rotate(4deg);
+  }
+  100% {
+    opacity: 0.12;
+    transform:
+      translate(calc(-50% + var(--fly-x, 0px)), calc(-50% + var(--fly-y, -180px)))
+      scale(0.08)
+      rotate(6deg);
+  }
+}
+
+@keyframes flyTrail {
+  0%,
+  44% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.35) rotate(0deg);
+  }
+  58% {
+    opacity: 0.92;
+    transform:
+      translate(calc(-50% + var(--fly-x-12, 0px) - 22px), calc(-50% + var(--fly-y-12, -22px) + 16px))
+      scale(0.72)
+      rotate(8deg);
+  }
+  78% {
+    opacity: 0.72;
+    transform:
+      translate(calc(-50% + var(--fly-x-48, 0px) - 26px), calc(-50% + var(--fly-y-48, -86px) + 20px))
+      scale(0.52)
+      rotate(18deg);
+  }
+  100% {
+    opacity: 0;
+    transform:
+      translate(calc(-50% + var(--fly-x-86, 0px) - 14px), calc(-50% + var(--fly-y-86, -155px) + 10px))
+      scale(0.18)
+      rotate(28deg);
+  }
 }
 
 @keyframes starPulse {
@@ -907,7 +1199,7 @@ button {
   }
   100% {
     opacity: 0;
-    transform: translate(var(--drift), 620px) rotate(520deg);
+    transform: translate(var(--drift), 620px) rotate(260deg);
   }
 }
 

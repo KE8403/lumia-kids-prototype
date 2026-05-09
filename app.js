@@ -60,8 +60,58 @@ const state = {
   sound: true,
   music: true,
   traceCompleted: false,
-  traceCoverage: 0
+  traceCoverage: 0,
+  stars: loadStarCount()
 };
+
+function loadStarCount() {
+  return Number(localStorage.getItem("lumiaStars") || 0);
+}
+
+function saveStarCount() {
+  localStorage.setItem("lumiaStars", String(state.stars));
+}
+
+function earnStar(amount = 1) {
+  state.stars += amount;
+  saveStarCount();
+  updateStarCounters();
+  setTimeout(celebrateStarCounter, 2600);
+}
+
+function resetStars() {
+  state.stars = 0;
+  state.matched.clear();
+  saveStarCount();
+  updateStarCounters();
+}
+
+function starBadge() {
+  return `
+    <div class="star-counter" aria-label="${state.stars} stars earned">
+      <span aria-hidden="true">★</span>
+      <strong>${state.stars}</strong>
+      <i class="counter-spark spark-one" aria-hidden="true">✦</i>
+      <i class="counter-spark spark-two" aria-hidden="true">★</i>
+      <i class="counter-spark spark-three" aria-hidden="true">✦</i>
+      <i class="counter-spark spark-four" aria-hidden="true">★</i>
+    </div>
+  `;
+}
+
+function updateStarCounters() {
+  document.querySelectorAll(".star-counter strong").forEach(counter => {
+    counter.textContent = state.stars;
+  });
+}
+
+function celebrateStarCounter() {
+  document.querySelectorAll(".star-counter").forEach(counter => {
+    counter.classList.remove("spark");
+    void counter.offsetWidth;
+    counter.classList.add("spark");
+  });
+}
 
 function mascotStars(size = 74) {
   const stars = [
@@ -174,6 +224,7 @@ function renderHome() {
         ${mascotStars(58)}
         <h1 class="screen-title">LumiA Kids</h1>
         ${learningBadge()}
+        ${starBadge()}
       </div>
       <div class="menu-grid">
         <button class="menu-btn abc" data-nav="abc">
@@ -279,6 +330,7 @@ function renderNumber() {
 function tracePanel(character) {
   return `
     <div class="trace-panel">
+      ${starBadge()}
       <p class="helper-text">Trace it. Tap Done.</p>
       <div class="trace-prompt">Follow the dots</div>
       <div class="trace-canvas-wrap">
@@ -303,6 +355,7 @@ function renderPlay() {
     <section class="screen">
       ${topbar("Match")}
       ${mascotStars(50)}
+      ${starBadge()}
       <p class="helper-text">Tap a big letter. Tap its small letter.</p>
       <div class="match-board">
         <div class="match-column">
@@ -313,6 +366,7 @@ function renderPlay() {
         </div>
       </div>
       <div class="reward-strip ${state.lastMatchWrong ? "wrong" : ""}">${state.reward}</div>
+      <div id="celebration" class="celebration" aria-hidden="true"></div>
     </section>
   `;
 }
@@ -352,6 +406,7 @@ function renderParentArea() {
       ${topbar("Grown-ups", "home")}
       <div class="parent-panel">
         <p class="parent-note">Offline only. No ads. No child data.</p>
+        ${starBadge()}
         <div class="setting-row">
           <span>Sound effects</span>
           <button class="toggle" data-toggle="sound" aria-label="Toggle sound">${state.sound ? "On" : "Off"}</button>
@@ -469,7 +524,7 @@ function bindScreen() {
 
   document.querySelectorAll("[data-reset]").forEach(button => {
     button.addEventListener("click", () => {
-      state.matched.clear();
+      resetStars();
       state.reward = "Stars reset.";
       render();
     });
@@ -490,9 +545,12 @@ function checkMatch() {
     return;
   }
 
+  let earnedStar = false;
   if (state.selectedUpper === state.selectedLower) {
     state.matched.add(state.selectedUpper);
     state.lastMatchWrong = false;
+    earnStar();
+    earnedStar = true;
   } else {
     state.reward = "Oops, try again.";
     state.lastMatchWrong = true;
@@ -513,6 +571,7 @@ function checkMatch() {
   }
 
   render();
+  if (earnedStar) showCelebration();
 
   if (groupComplete) {
     setTimeout(() => {
@@ -533,6 +592,7 @@ function completeTraceTask() {
     return;
   }
   state.traceCompleted = true;
+  earnStar();
   state.reward = `Great job! Next: ${nextTraceLabel()}`;
   updateRewardStrip();
   playSuccessSound("Hooray! Great job");
@@ -622,17 +682,54 @@ function showCelebration() {
     <div class="celebration-card">
       <div class="celebration-star" aria-hidden="true">★</div>
       <div class="celebration-word">Hooray!</div>
-      <div class="celebration-note">Star earned</div>
+      <div class="celebration-note">You got stars!</div>
+    </div>
+    <div class="celebration-fly-star" aria-hidden="true">
+      <span class="fly-trail trail-one">★</span>
+      <span class="fly-trail trail-two">✦</span>
+      <span class="fly-trail trail-three">★</span>
+      <svg viewBox="0 0 100 100">
+        <path d="M50 7 C56 7 60 26 65 30 C70 34 90 28 94 34 C98 40 82 52 80 59 C78 66 90 82 85 88 C80 94 62 83 55 84 C48 85 35 99 28 95 C21 91 27 72 24 66 C21 60 3 52 5 44 C7 36 27 36 33 31 C39 26 44 7 50 7 Z"></path>
+        <circle class="reward-star-eye" cx="39" cy="47" r="4"></circle>
+        <circle class="reward-star-eye" cx="61" cy="47" r="4"></circle>
+        <path class="reward-star-smile" d="M39 60 C45 69 55 69 61 60"></path>
+      </svg>
     </div>
     ${Array.from({ length: 64 }, (_, index) => {
       const left = 8 + Math.random() * 84;
-      const delay = Math.random() * 0.85;
+      const delay = Math.random() * 1.15;
       const size = 8 + Math.random() * 12;
-      const drift = -80 + Math.random() * 160;
+      const drift = -56 + Math.random() * 112;
       const color = ["#ffd85a", "#4f8ff7", "#ff75a9", "#84d98b", "#ff817d"][index % 5];
       return `<span class="confetti" style="--left:${left}%;--delay:${delay}s;--size:${size}px;--drift:${drift}px;--color:${color};"></span>`;
     }).join("")}
   `;
+
+  const flyStar = celebration.querySelector(".celebration-fly-star");
+  const counter = document.querySelector(".star-counter");
+  if (flyStar && counter) {
+    const celebrationBox = celebration.getBoundingClientRect();
+    const counterBox = counter.getBoundingClientRect();
+    const startX = celebrationBox.left + (celebrationBox.width / 2);
+    const startY = celebrationBox.top + (celebrationBox.height * 0.36);
+    const targetX = counterBox.left + (counterBox.width / 2);
+    const targetY = counterBox.top + (counterBox.height / 2);
+    const flyX = targetX - startX;
+    const flyY = targetY - startY;
+    flyStar.style.setProperty("--fly-x", `${flyX}px`);
+    flyStar.style.setProperty("--fly-y", `${flyY}px`);
+    flyStar.style.setProperty("--fly-x-12", `${flyX * 0.12}px`);
+    flyStar.style.setProperty("--fly-y-12", `${flyY * 0.12}px`);
+    flyStar.style.setProperty("--fly-x-28", `${flyX * 0.28}px`);
+    flyStar.style.setProperty("--fly-y-28", `${flyY * 0.28}px`);
+    flyStar.style.setProperty("--fly-x-48", `${flyX * 0.48}px`);
+    flyStar.style.setProperty("--fly-y-48", `${flyY * 0.48}px`);
+    flyStar.style.setProperty("--fly-x-68", `${flyX * 0.68}px`);
+    flyStar.style.setProperty("--fly-y-68", `${flyY * 0.68}px`);
+    flyStar.style.setProperty("--fly-x-86", `${flyX * 0.86}px`);
+    flyStar.style.setProperty("--fly-y-86", `${flyY * 0.86}px`);
+  }
+
   celebration.classList.add("show");
 
   setTimeout(() => {
