@@ -76,7 +76,7 @@ function earnStar(amount = 1) {
   state.stars += amount;
   saveStarCount();
   updateStarCounters();
-  setTimeout(celebrateStarCounter, 2600);
+  setTimeout(celebrateStarCounter, 5600);
 }
 
 function resetStars() {
@@ -705,36 +705,52 @@ function showCelebration() {
     }).join("")}
   `;
 
-  const flyStar = celebration.querySelector(".celebration-fly-star");
-  const counter = document.querySelector(".star-counter");
-  if (flyStar && counter) {
-    const celebrationBox = celebration.getBoundingClientRect();
+  celebration.classList.add("show");
+
+  requestAnimationFrame(() => {
+    const flyStar = celebration.querySelector(".celebration-fly-star");
+    const counter = document.querySelector(".star-counter");
+    if (!flyStar || !counter) return;
+
+    const starBox = flyStar.getBoundingClientRect();
     const counterBox = counter.getBoundingClientRect();
-    const startX = celebrationBox.left + (celebrationBox.width / 2);
-    const startY = celebrationBox.top + (celebrationBox.height * 0.36);
+    const startX = starBox.left + (starBox.width / 2);
+    const startY = starBox.top + (starBox.height / 2);
     const targetX = counterBox.left + (counterBox.width / 2);
     const targetY = counterBox.top + (counterBox.height / 2);
     const flyX = targetX - startX;
     const flyY = targetY - startY;
+
     flyStar.style.setProperty("--fly-x", `${flyX}px`);
     flyStar.style.setProperty("--fly-y", `${flyY}px`);
     flyStar.style.setProperty("--fly-x-12", `${flyX * 0.12}px`);
     flyStar.style.setProperty("--fly-y-12", `${flyY * 0.12}px`);
+    flyStar.style.setProperty("--fly-x-16", `${flyX * 0.16}px`);
+    flyStar.style.setProperty("--fly-y-16", `${flyY * 0.16}px`);
+    flyStar.style.setProperty("--fly-x-24", `${flyX * 0.24}px`);
+    flyStar.style.setProperty("--fly-y-24", `${flyY * 0.24}px`);
     flyStar.style.setProperty("--fly-x-28", `${flyX * 0.28}px`);
     flyStar.style.setProperty("--fly-y-28", `${flyY * 0.28}px`);
     flyStar.style.setProperty("--fly-x-48", `${flyX * 0.48}px`);
     flyStar.style.setProperty("--fly-y-48", `${flyY * 0.48}px`);
+    flyStar.style.setProperty("--fly-x-50", `${flyX * 0.5}px`);
+    flyStar.style.setProperty("--fly-y-50", `${flyY * 0.5}px`);
+    flyStar.style.setProperty("--fly-x-64", `${flyX * 0.64}px`);
+    flyStar.style.setProperty("--fly-y-64", `${flyY * 0.64}px`);
     flyStar.style.setProperty("--fly-x-68", `${flyX * 0.68}px`);
     flyStar.style.setProperty("--fly-y-68", `${flyY * 0.68}px`);
+    flyStar.style.setProperty("--fly-x-76", `${flyX * 0.76}px`);
+    flyStar.style.setProperty("--fly-y-76", `${flyY * 0.76}px`);
     flyStar.style.setProperty("--fly-x-86", `${flyX * 0.86}px`);
     flyStar.style.setProperty("--fly-y-86", `${flyY * 0.86}px`);
-  }
-
-  celebration.classList.add("show");
+    flyStar.style.setProperty("--fly-x-90", `${flyX * 0.9}px`);
+    flyStar.style.setProperty("--fly-y-90", `${flyY * 0.9}px`);
+    flyStar.classList.add("return-home");
+  });
 
   setTimeout(() => {
     celebration.classList.remove("show");
-  }, 3300);
+  }, 6600);
 }
 
 function speechTextFor(value) {
