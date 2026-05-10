@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../screens/abc_screen.dart';
 import '../screens/home_screen.dart';
@@ -15,10 +16,26 @@ class LumiaApp extends StatefulWidget {
 }
 
 class _LumiaAppState extends State<LumiaApp> {
+  static const _starsKey = 'lumiaStars';
+
   LumiaScreen _screen = LumiaScreen.splash;
   int _stars = 0;
   int _starPulseToken = 0;
   String _selectedLetter = 'A';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadStars();
+  }
+
+  Future<void> _loadStars() async {
+    final preferences = await SharedPreferences.getInstance();
+    if (!mounted) return;
+    setState(() {
+      _stars = preferences.getInt(_starsKey) ?? 0;
+    });
+  }
 
   void _showHome() {
     setState(() {
@@ -39,10 +56,23 @@ class _LumiaAppState extends State<LumiaApp> {
     });
   }
 
-  void _earnStar() {
+  Future<void> _earnStar() async {
+    final nextStars = _stars + 1;
     setState(() {
-      _stars += 1;
+      _stars = nextStars;
       _starPulseToken += 1;
+    });
+
+    final preferences = await SharedPreferences.getInstance();
+    await preferences.setInt(_starsKey, nextStars);
+  }
+
+  void _handleTraceCompleted(String letter) {
+    if (letter != 'A') return;
+
+    setState(() {
+      _selectedLetter = 'ɑ';
+      _screen = LumiaScreen.letterTrace;
     });
   }
 
@@ -75,6 +105,7 @@ class _LumiaAppState extends State<LumiaApp> {
         onBack: _showAbc,
         onHome: _showHome,
         onEarnStar: _earnStar,
+        onTraceCompleted: _handleTraceCompleted,
       ),
     };
   }

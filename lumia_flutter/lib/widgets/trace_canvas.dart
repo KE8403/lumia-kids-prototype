@@ -24,7 +24,7 @@ class TraceCanvasState extends State<TraceCanvas> {
     return coverage >= 0.54 && _validTracePoints >= 22;
   }
 
-  int get _guidePointCount => widget.guide == 'A' ? 31 : 1;
+  int get _guidePointCount => widget.guide == 'A' ? 31 : 34;
 
   void clear() {
     setState(() {
@@ -95,14 +95,20 @@ class TraceCanvasState extends State<TraceCanvas> {
   }
 
   List<_GuideSample> _guideSamples(Size size) {
-    if (widget.guide != 'A') return const [];
+    if (widget.guide == 'A') {
+      final points = _aGeometry(size);
+      return [
+        ..._samplesOnLine(points.left, points.top, 12, 0),
+        ..._samplesOnLine(points.top, points.right, 12, 12),
+        ..._samplesOnLine(points.crossLeft, points.crossRight, 7, 24),
+      ];
+    }
 
-    final points = _aGeometry(size);
-    return [
-      ..._samplesOnLine(points.left, points.top, 12, 0),
-      ..._samplesOnLine(points.top, points.right, 12, 12),
-      ..._samplesOnLine(points.crossLeft, points.crossRight, 7, 24),
-    ];
+    if (widget.guide == 'ɑ') {
+      return _samplesOnPath(_alphaPath(size), 34, 0);
+    }
+
+    return const [];
   }
 
   List<_GuideSample> _samplesOnLine(
@@ -118,6 +124,35 @@ class TraceCanvasState extends State<TraceCanvas> {
         point: Offset.lerp(start, end, t)!,
       );
     });
+  }
+
+  List<_GuideSample> _samplesOnPath(Path path, int count, int indexOffset) {
+    final metrics = path.computeMetrics().toList();
+    final totalLength = metrics.fold<double>(
+      0,
+      (sum, metric) => sum + metric.length,
+    );
+    if (totalLength == 0) return const [];
+
+    final samples = <_GuideSample>[];
+    for (var index = 0; index < count; index++) {
+      final t = count == 1 ? 0.0 : index / (count - 1);
+      var remaining = totalLength * t;
+      for (final metric in metrics) {
+        if (remaining > metric.length) {
+          remaining -= metric.length;
+          continue;
+        }
+        final tangent = metric.getTangentForOffset(remaining);
+        if (tangent != null) {
+          samples.add(
+            _GuideSample(index: indexOffset + index, point: tangent.position),
+          );
+        }
+        break;
+      }
+    }
+    return samples;
   }
 
   @override
@@ -163,6 +198,8 @@ class _TracePainter extends CustomPainter {
 
     if (guide == 'A') {
       _drawA(canvas, size);
+    } else if (guide == 'ɑ') {
+      _drawAlpha(canvas, size);
     }
 
     final tracePaint = Paint()
@@ -235,6 +272,33 @@ class _TracePainter extends CustomPainter {
     );
   }
 
+  void _drawAlpha(Canvas canvas, Size size) {
+    final scale = size.shortestSide / 360;
+    final path = _alphaPath(size);
+
+    final outlineBack = Paint()
+      ..color = const Color(0xFF243F6D)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 62 * scale
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+
+    final outlineFill = Paint()
+      ..color = const Color(0xFFFFF7D8)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 48 * scale
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+
+    canvas.drawPath(path, outlineBack);
+    canvas.drawPath(path, outlineFill);
+
+    final dotPaint = Paint()
+      ..color = const Color(0xFF243F6D)
+      ..style = PaintingStyle.fill;
+    _drawDotsOnPath(canvas, path, 34, 5.2 * scale, dotPaint);
+  }
+
   void _drawDotsOnLine(
     Canvas canvas,
     Offset start,
@@ -247,6 +311,37 @@ class _TracePainter extends CustomPainter {
       final t = count == 1 ? 0.0 : i / (count - 1);
       final point = Offset.lerp(start, end, t)!;
       canvas.drawCircle(point, radius, paint);
+    }
+  }
+
+  void _drawDotsOnPath(
+    Canvas canvas,
+    Path path,
+    int count,
+    double radius,
+    Paint paint,
+  ) {
+    final metrics = path.computeMetrics().toList();
+    final totalLength = metrics.fold<double>(
+      0,
+      (sum, metric) => sum + metric.length,
+    );
+    if (totalLength == 0) return;
+
+    for (var i = 0; i < count; i++) {
+      final t = count == 1 ? 0.0 : i / (count - 1);
+      var remaining = totalLength * t;
+      for (final metric in metrics) {
+        if (remaining > metric.length) {
+          remaining -= metric.length;
+          continue;
+        }
+        final tangent = metric.getTangentForOffset(remaining);
+        if (tangent != null) {
+          canvas.drawCircle(tangent.position, radius, paint);
+        }
+        break;
+      }
     }
   }
 
@@ -301,6 +396,62 @@ _AGeometry _aGeometry(Size size) {
     crossLeft: Offset(crossLeft, crossY),
     crossRight: Offset(crossRight, crossY),
   );
+}
+
+Path _alphaPath(Size size) {
+  final scale = size.shortestSide / 360;
+  final center = Offset(size.width / 2, size.height * 0.5);
+  final poleX = center.dx + 90 * scale;
+  final poleTop = center.dy - 68 * scale;
+  final poleBottom = center.dy + 96 * scale;
+  final circleCenter = Offset(center.dx - 12 * scale, center.dy + 8 * scale);
+  final radiusX = 78 * scale;
+  final radiusY = 78 * scale;
+
+  return Path()
+    ..moveTo(circleCenter.dx + radiusX, circleCenter.dy)
+    ..cubicTo(
+      circleCenter.dx + radiusX,
+      circleCenter.dy - radiusY * 0.58,
+      circleCenter.dx + radiusX * 0.58,
+      circleCenter.dy - radiusY,
+      circleCenter.dx,
+      circleCenter.dy - radiusY,
+    )
+    ..cubicTo(
+      circleCenter.dx - radiusX * 0.58,
+      circleCenter.dy - radiusY,
+      circleCenter.dx - radiusX,
+      circleCenter.dy - radiusY * 0.58,
+      circleCenter.dx - radiusX,
+      circleCenter.dy,
+    )
+    ..cubicTo(
+      circleCenter.dx - radiusX,
+      circleCenter.dy + radiusY * 0.58,
+      circleCenter.dx - radiusX * 0.58,
+      circleCenter.dy + radiusY,
+      circleCenter.dx,
+      circleCenter.dy + radiusY,
+    )
+    ..cubicTo(
+      circleCenter.dx + radiusX * 0.58,
+      circleCenter.dy + radiusY,
+      circleCenter.dx + radiusX,
+      circleCenter.dy + radiusY * 0.58,
+      circleCenter.dx + radiusX,
+      circleCenter.dy,
+    )
+    ..moveTo(poleX, poleTop)
+    ..cubicTo(
+      poleX + 8 * scale,
+      center.dy - 20 * scale,
+      poleX + 8 * scale,
+      center.dy + 42 * scale,
+      poleX,
+      poleBottom,
+    )
+    ..lineTo(poleX - 2 * scale, poleBottom);
 }
 
 class _AGeometry {

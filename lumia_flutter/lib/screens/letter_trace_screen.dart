@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../widgets/page_background.dart';
@@ -14,6 +16,7 @@ class LetterTraceScreen extends StatefulWidget {
     required this.onBack,
     required this.onHome,
     required this.onEarnStar,
+    required this.onTraceCompleted,
   });
 
   final String letter;
@@ -21,7 +24,8 @@ class LetterTraceScreen extends StatefulWidget {
   final int starPulseToken;
   final VoidCallback onBack;
   final VoidCallback onHome;
-  final VoidCallback onEarnStar;
+  final Future<void> Function() onEarnStar;
+  final ValueChanged<String> onTraceCompleted;
 
   @override
   State<LetterTraceScreen> createState() => _LetterTraceScreenState();
@@ -51,7 +55,7 @@ class _LetterTraceScreenState extends State<LetterTraceScreen> {
     }
 
     if (!_completed) {
-      widget.onEarnStar();
+      unawaited(widget.onEarnStar());
       setState(() {
         _showRewardStar = true;
       });
@@ -112,6 +116,7 @@ class _LetterTraceScreenState extends State<LetterTraceScreen> {
                 setState(() {
                   _showRewardStar = false;
                 });
+                widget.onTraceCompleted(widget.letter);
               },
             ),
         ],
